@@ -1,4 +1,4 @@
-package fairies.pixels.curlyLabAndroid.ui.theme
+package fairies.pixels.curlyLabAndroid.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

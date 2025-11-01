@@ -1,4 +1,4 @@
-package fairies.pixels.curlyLabAndroid.ui.theme
+package fairies.pixels.curlyLabAndroid.presentation.theme
 
 import android.app.Activity
 import android.os.Build
