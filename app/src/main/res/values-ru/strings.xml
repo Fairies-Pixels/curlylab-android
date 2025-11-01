@@ -1,0 +1,5 @@
+<resources>
+    <string name="home">Главная</string>
+    <string name="settings">Настройки</string>
+    <string name="profile">Профиль</string>
+</resources>
