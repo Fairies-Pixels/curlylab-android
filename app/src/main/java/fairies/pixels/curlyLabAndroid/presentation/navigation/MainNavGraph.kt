@@ -13,7 +13,6 @@ import fairies.pixels.curlyLabAndroid.presentation.hairTyping.screen.IsColoredTe
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.screen.PorosityTextTypingScreen
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.screen.ThicknessTextTypingScreen
 import fairies.pixels.curlyLabAndroid.presentation.products.screen.ProductsScreen
-import java.util.UUID
 
 fun NavGraphBuilder.mainNavGraph(navHostController: NavHostController) {
     navigation(
