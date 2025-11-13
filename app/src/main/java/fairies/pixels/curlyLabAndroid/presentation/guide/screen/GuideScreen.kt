@@ -39,6 +39,7 @@ fun GuideScreen(navHostController: NavHostController) {
                 5. Используй микрофибровое полотенце.
                 6. Не бойся геля – он фиксирует форму.
                 7. Дай волосам высохнуть естественно.
+                
             """.trimIndent(),
             color = DarkGreen,
             textAlign = TextAlign.Start
