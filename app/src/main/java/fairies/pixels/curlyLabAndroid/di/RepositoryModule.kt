@@ -1,0 +1,27 @@
+package fairies.pixels.curlyLabAndroid.di
+
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import fairies.pixels.curlyLabAndroid.data.repository.profile.HairTypesRepositoryImpl
+import fairies.pixels.curlyLabAndroid.data.repository.profile.UsersRepositoryImpl
+import fairies.pixels.curlyLabAndroid.domain.repository.profile.HairTypesRepository
+import fairies.pixels.curlyLabAndroid.domain.repository.profile.UsersRepository
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+    @Binds
+    @Singleton
+    abstract fun bindHairTypesRepository(
+        impl: HairTypesRepositoryImpl
+    ): HairTypesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUsersRepository(
+        impl: UsersRepositoryImpl
+    ): UsersRepository
+}
