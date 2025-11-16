@@ -34,6 +34,7 @@ import fairies.pixels.curlyLabAndroid.presentation.theme.LightPink
 fun HomeScreen(navController: NavController) {
     Column(
         modifier = Modifier
+            .background(Color.White)
             .fillMaxWidth()
             .padding(24.dp)
     ) {

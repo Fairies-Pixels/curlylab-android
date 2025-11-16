@@ -32,6 +32,7 @@ import fairies.pixels.curlyLabAndroid.presentation.theme.LightPink
 fun HairTypingScreen(navController: NavController) {
     Column(
         modifier = Modifier
+            .background(Color.White)
             .fillMaxSize()
             .padding(24.dp)
     )
