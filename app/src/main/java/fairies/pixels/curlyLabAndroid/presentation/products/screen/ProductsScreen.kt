@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,8 +56,8 @@ fun ProductsScreen(
     val coloringTag by viewModel.coloringTag.collectAsState()
     val thicknessTag by viewModel.thicknessTag.collectAsState()
 
-    var selectedProduct by remember { mutableStateOf<Product?>(null) }
-    var isFilterVisible by remember { mutableStateOf(false) }
+    var selectedProduct by rememberSaveable { mutableStateOf<Product?>(null) }
+    var isFilterVisible by rememberSaveable { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(

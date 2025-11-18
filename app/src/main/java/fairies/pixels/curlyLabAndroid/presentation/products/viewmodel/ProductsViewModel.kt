@@ -41,10 +41,6 @@ class ProductsViewModel @Inject constructor(
     private val _favorites = MutableStateFlow<List<Favorite>>(emptyList())
     val favorites: StateFlow<List<Favorite>> = _favorites.asStateFlow()
 
-    val isProductFavoriteFlow: (UUID) -> Boolean = { productId ->
-        _favorites.value.any { it.productId == productId }
-    }
-
     private val _reviews = MutableStateFlow<List<Review>>(emptyList())
     val reviews: StateFlow<List<Review>> = _reviews.asStateFlow()
 
@@ -140,7 +136,6 @@ class ProductsViewModel @Inject constructor(
                 val userId = getCurrentUserId()
                 toggleFavoriteUseCase(userId, productId)
 
-                // Обновляем локальное состояние
                 val isCurrentlyFavorite = _favorites.value.any { it.productId == productId }
                 if (isCurrentlyFavorite) {
                     _favorites.value = _favorites.value.filter { it.productId != productId }
@@ -151,10 +146,6 @@ class ProductsViewModel @Inject constructor(
                 _error.value = "Не удалось обновить избранное: ${e.message}"
             }
         }
-    }
-
-    fun isProductFavorite(productId: UUID): Boolean {
-        return _favorites.value.any { it.productId == productId }
     }
 
     fun submitReview(productId: UUID, mark: Int, reviewText: String) {
