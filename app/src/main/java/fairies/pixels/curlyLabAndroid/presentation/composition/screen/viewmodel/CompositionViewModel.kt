@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fairies.pixels.curlyLabAndroid.data.remote.api.ApiService
-import fairies.pixels.curlyLabAndroid.data.remote.model.composition.AnalysisResult
+import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResult
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

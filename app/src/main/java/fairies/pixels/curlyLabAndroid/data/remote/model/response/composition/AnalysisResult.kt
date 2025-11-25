@@ -1,4 +1,4 @@
-package fairies.pixels.curlyLabAndroid.data.remote.model.composition
+package fairies.pixels.curlyLabAndroid.data.remote.model.response.composition
 
 data class AnalysisIssue(
     val ingredient: String,

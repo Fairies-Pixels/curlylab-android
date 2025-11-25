@@ -9,7 +9,7 @@ import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.Produc
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ReviewResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.HairTypeResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.UserResponse
-import fairies.pixels.curlyLabAndroid.data.remote.model.composition.AnalysisResult
+import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResult
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response

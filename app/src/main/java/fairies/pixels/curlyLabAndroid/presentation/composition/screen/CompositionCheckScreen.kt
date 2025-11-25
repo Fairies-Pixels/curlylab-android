@@ -22,7 +22,8 @@ import fairies.pixels.curlyLabAndroid.presentation.theme.BrightPink
 import fairies.pixels.curlyLabAndroid.presentation.theme.Golos
 import fairies.pixels.curlyLabAndroid.presentation.composition.screen.viewmodel.CompositionViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
-
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @Composable
 fun CompositionCheckScreen(navController: NavController) {
@@ -32,7 +33,14 @@ fun CompositionCheckScreen(navController: NavController) {
     val inputText by viewModel.inputText
     val result by viewModel.result.collectAsState()
 
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val UriSaver: Saver<Uri?, String> = Saver(
+        save = { it?.toString() ?: "" },
+        restore = { if (it.isNotEmpty()) Uri.parse(it) else null }
+    )
+
+    var imageUri by rememberSaveable(stateSaver = UriSaver) {
+        mutableStateOf<Uri?>(null)
+    }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
