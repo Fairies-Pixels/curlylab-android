@@ -1,9 +1,12 @@
 package fairies.pixels.curlyLabAndroid.data.remote.api
 
+import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.LoginRequest
+import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.RegisterRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.FavoriteRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.ReviewRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.HairTypeRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.UserRequest
+import fairies.pixels.curlyLabAndroid.data.remote.model.response.auth.AuthResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.FavoriteResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ProductResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ReviewResponse
@@ -100,4 +103,10 @@ interface ApiService {
         @Path("product_id") productId: String,
         @Path("user_id") userId: String
     ): Boolean
+
+    @POST("auth/register")
+    suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
+
+    @POST("auth/login")
+    suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 }

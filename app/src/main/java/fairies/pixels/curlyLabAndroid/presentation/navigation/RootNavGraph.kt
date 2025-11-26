@@ -1,21 +1,60 @@
 package fairies.pixels.curlyLabAndroid.presentation.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import fairies.pixels.curlyLabAndroid.presentation.theme.LightBeige
+import fairies.pixels.curlyLabAndroid.presentation.theme.LightGreen
 
 @Composable
 fun RootNavGraph(navHostController: NavHostController) {
-    var isLoggedIn by remember { mutableStateOf(false) }
+    val mainViewModel: MainViewModel = hiltViewModel()
+    val isLoggedIn by mainViewModel.isLoggedIn.collectAsState()
+    val isLoading by mainViewModel.isLoading.collectAsState()
 
-    NavHost(navController = navHostController,
-        startDestination = if (isLoggedIn) Screen.MainGraph.route else Screen.AuthGraph.route
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(LightBeige),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = LightGreen)
+        }
+        return
+    }
+
+    val startDestination = when {
+        isLoggedIn == true -> Screen.MainGraph.route
+        else -> Screen.AuthGraph.route
+    }
+
+    val onGoogleSignIn = {
+        // TODO: Реализовать Google Sign-In
+    }
+
+    val onNavigateToMain = {
+        mainViewModel.setLoggedIn(true)
+    }
+
+    NavHost(
+        navController = navHostController,
+        startDestination = startDestination
     ) {
-        authNavGraph(navHostController)
+        authNavGraph(
+            navController = navHostController,
+            onGoogleSignIn = onGoogleSignIn,
+            onNavigateToMain = onNavigateToMain
+        )
         mainNavGraph(navHostController)
     }
 }
