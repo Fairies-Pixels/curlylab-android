@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +26,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,13 +56,21 @@ fun SignUpScreen(
     onSignUpSuccess: () -> Unit,
     onNavigateToSignIn: () -> Unit
 ) {
-    val login by viewModel.login.collectAsState()
+    val email by viewModel.email.collectAsState()
     val username by viewModel.username.collectAsState()
     val password by viewModel.password.collectAsState()
     val confirmPassword by viewModel.confirmPassword.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     val passwordVisible = rememberSaveable { mutableStateOf(false) }
     val confirmPasswordVisible = rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { message ->
+            // scaffoldState.snackbarHostState.showSnackbar(message)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -102,9 +113,10 @@ fun SignUpScreen(
                         .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    OutlinedTextField(value = login,
-                        onValueChange = { viewModel.updateLogin(it) },
-                        label = { Text("Логин", color = DarkGreen.copy(alpha = 0.6f)) },
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { viewModel.updateEmail(it) },
+                        label = { Text("Email", color = DarkGreen.copy(alpha = 0.6f)) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
@@ -117,7 +129,8 @@ fun SignUpScreen(
                         shape = RoundedCornerShape(8.dp)
                     )
 
-                    OutlinedTextField(value = username,
+                    OutlinedTextField(
+                        value = username,
                         onValueChange = { viewModel.updateUsername(it) },
                         label = { Text("Имя", color = DarkGreen.copy(alpha = 0.6f)) },
                         modifier = Modifier.fillMaxWidth(),
@@ -132,7 +145,8 @@ fun SignUpScreen(
                         shape = RoundedCornerShape(8.dp)
                     )
 
-                    OutlinedTextField(value = password,
+                    OutlinedTextField(
+                        value = password,
                         onValueChange = { viewModel.updatePassword(it) },
                         label = { Text("Пароль", color = DarkGreen.copy(alpha = 0.6f)) },
                         modifier = Modifier.fillMaxWidth(),
@@ -166,7 +180,8 @@ fun SignUpScreen(
                         onValueChange = { viewModel.updateConfirmPassword(it) },
                         label = {
                             Text(
-                                "Подтвердите пароль", color = DarkGreen.copy(alpha = 0.6f)
+                                "Подтвердите пароль",
+                                color = DarkGreen.copy(alpha = 0.6f)
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
@@ -195,37 +210,60 @@ fun SignUpScreen(
                         shape = RoundedCornerShape(8.dp)
                     )
 
+                    errorMessage?.let { message ->
+                        Text(
+                            text = message,
+                            color = Color.Red,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+
                     Button(
-                        onClick = { onSignUpSuccess() },
+                        onClick = { viewModel.signUp(onSignUpSuccess) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
+                        enabled = !isLoading && email.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = LightGreen, contentColor = Color.White
+                            containerColor = LightGreen,
+                            contentColor = Color.White,
+                            disabledContainerColor = LightGreen.copy(alpha = 0.5f),
+                            disabledContentColor = Color.White.copy(alpha = 0.7f)
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text(
-                            text = "Зарегистрироваться",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        } else {
+                            Text(
+                                text = "Зарегистрироваться",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
                         text = "Уже есть аккаунт? ",
                         style = MaterialTheme.typography.bodyMedium,
                         color = DarkGreen.copy(alpha = 0.7f)
                     )
-                    Text(text = "Войти",
+                    Text(
+                        text = "Войти",
                         style = MaterialTheme.typography.bodyMedium,
                         color = DarkGreen,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { onNavigateToSignIn() })
+                        modifier = Modifier.clickable { onNavigateToSignIn() }
+                    )
                 }
             }
         }
