@@ -4,9 +4,11 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import fairies.pixels.curlyLabAndroid.data.repository.profile.HairTypesRepositoryImpl
+import fairies.pixels.curlyLabAndroid.data.repository.auth.AuthRepositoryImpl
 import fairies.pixels.curlyLabAndroid.data.repository.products.ProductsRepositoryImpl
+import fairies.pixels.curlyLabAndroid.data.repository.profile.HairTypesRepositoryImpl
 import fairies.pixels.curlyLabAndroid.data.repository.profile.UsersRepositoryImpl
+import fairies.pixels.curlyLabAndroid.domain.repository.auth.AuthRepository
 import fairies.pixels.curlyLabAndroid.domain.repository.products.ProductsRepository
 import fairies.pixels.curlyLabAndroid.domain.repository.profile.HairTypesRepository
 import fairies.pixels.curlyLabAndroid.domain.repository.profile.UsersRepository
@@ -32,4 +34,10 @@ abstract class RepositoryModule {
     abstract fun bindProductsRepository(
         impl: ProductsRepositoryImpl
     ): ProductsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(
+        impl: AuthRepositoryImpl
+    ): AuthRepository
 }

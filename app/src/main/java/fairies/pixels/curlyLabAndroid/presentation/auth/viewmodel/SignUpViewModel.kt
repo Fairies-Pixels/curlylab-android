@@ -1,42 +1,86 @@
 package fairies.pixels.curlyLabAndroid.presentation.auth.viewmodel
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fairies.pixels.curlyLabAndroid.domain.usecase.auth.SignUpUseCase
+import fairies.pixels.curlyLabAndroid.domain.usecase.auth.ValidatePasswordUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    application: Application
+    private val signUpUseCase: SignUpUseCase,
+    private val validatePasswordUseCase: ValidatePasswordUseCase
 ) : ViewModel() {
 
-    private val _login = MutableStateFlow<String>("")
-    val login = _login.asStateFlow()
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email
 
-    private val _username = MutableStateFlow<String>("")
-    val username = _username.asStateFlow()
+    private val _username = MutableStateFlow("")
+    val username: StateFlow<String> = _username
 
-    private val _password = MutableStateFlow<String>("")
-    val password = _password.asStateFlow()
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password
 
-    private val _confirmPassword = MutableStateFlow<String>("")
-    val confirmPassword = _confirmPassword.asStateFlow()
+    private val _confirmPassword = MutableStateFlow("")
+    val confirmPassword: StateFlow<String> = _confirmPassword
 
-    fun updateLogin(value: String) {
-        _login.value = value
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    fun updateEmail(value: String) {
+        _email.value = value
+        _errorMessage.value = null
     }
 
     fun updateUsername(value: String) {
         _username.value = value
+        _errorMessage.value = null
     }
 
     fun updatePassword(value: String) {
         _password.value = value
+        _errorMessage.value = null
     }
 
     fun updateConfirmPassword(value: String) {
         _confirmPassword.value = value
+        _errorMessage.value = null
+    }
+
+    fun signUp(onSuccess: () -> Unit) {
+        val passwordValidation = validatePasswordUseCase(password.value, confirmPassword.value)
+        if (!passwordValidation.successful) {
+            _errorMessage.value = passwordValidation.errorMessage
+            return
+        }
+
+        if (email.value.isEmpty() || username.value.isEmpty()) {
+            _errorMessage.value = "Please fill in all fields"
+            return
+        }
+
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = signUpUseCase(email.value, password.value, username.value)
+            _isLoading.value = false
+
+            if (result.isSuccess) {
+                _errorMessage.value = null
+                onSuccess()
+            } else {
+                _errorMessage.value = result.exceptionOrNull()?.message ?: "Registration failed"
+            }
+        }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 }

@@ -4,43 +4,44 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import fairies.pixels.curlyLabAndroid.presentation.auth.screen.ResetPasswordScreen
 import fairies.pixels.curlyLabAndroid.presentation.auth.screen.SignInScreen
 import fairies.pixels.curlyLabAndroid.presentation.auth.screen.SignUpScreen
 
-fun NavGraphBuilder.authNavGraph(navHostController: NavHostController) {
+fun NavGraphBuilder.authNavGraph(
+    navController: NavHostController,
+    onGoogleSignIn: () -> Unit,
+    onNavigateToMain: () -> Unit
+) {
     navigation(
         startDestination = Screen.SignIn.route,
         route = Screen.AuthGraph.route
     ) {
         composable(Screen.SignIn.route) {
-            SignInScreen(onSignInSuccess = {
-                navHostController.navigate(Screen.MainGraph.route) {
-                    popUpTo(Screen.AuthGraph.route) { inclusive = true }
-                }
-            }, onNavigateToSignUp = {
-                navHostController.navigate(Screen.SignUp.route)
-            }, onNavigateToResetPassword = {
-                navHostController.navigate(Screen.ResetPassword.route)
-            })
+            SignInScreen(
+                onSignInSuccess = {
+                    onNavigateToMain()
+                },
+                onNavigateToSignUp = {
+                    navController.navigate(Screen.SignUp.route)
+                },
+                onNavigateToResetPassword = {
+                    navController.navigate(Screen.ResetPassword.route)
+                },
+                onGoogleSignIn = onGoogleSignIn
+            )
         }
 
         composable(Screen.SignUp.route) {
-            SignUpScreen(onSignUpSuccess = {
-                navHostController.navigate(Screen.SignIn.route) {
-                    popUpTo(Screen.AuthGraph.route) { inclusive = true }
+            SignUpScreen(
+                onSignUpSuccess = {
+                    navController.navigate(Screen.SignIn.route) {
+                        popUpTo(Screen.SignIn.route) { inclusive = true }
+                    }
+                },
+                onNavigateToSignIn = {
+                    navController.popBackStack()
                 }
-            }, onNavigateToSignIn = {
-                navHostController.navigate(Screen.SignIn.route)
-            })
-        }
-
-        composable(Screen.ResetPassword.route) {
-            ResetPasswordScreen(onResetSuccess = {
-                navHostController.navigate(Screen.SignIn.route) {
-                    popUpTo(Screen.AuthGraph.route) { inclusive = true }
-                }
-            })
+            )
         }
     }
 }
