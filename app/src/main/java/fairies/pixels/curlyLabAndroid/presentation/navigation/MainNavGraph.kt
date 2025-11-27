@@ -33,7 +33,7 @@ fun NavGraphBuilder.mainNavGraph(navHostController: NavHostController) {
         }
 
         composable(Screen.CompositionCheck.route) {
-            CompositionCheckScreen(navController = navHostController)
+            CompositionCheckScreen(navHostController)
         }
         composable(Screen.HairAnalysis.route) {
             HairAnalysisScreen(navController = navHostController)

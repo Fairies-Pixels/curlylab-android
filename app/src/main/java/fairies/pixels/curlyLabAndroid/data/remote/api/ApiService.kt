@@ -12,12 +12,17 @@ import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.Produc
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ReviewResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.HairTypeResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.UserResponse
+import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResult
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface ApiService {
@@ -103,6 +108,13 @@ interface ApiService {
         @Path("product_id") productId: String,
         @Path("user_id") userId: String
     ): Boolean
+
+    @Multipart
+    @POST("/composition/analyze")
+    suspend fun analyzeComposition(
+        @Part file: MultipartBody.Part?,
+        @Part("text") text: RequestBody?
+    ): AnalysisResult
 
     @POST("auth/register")
     suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
