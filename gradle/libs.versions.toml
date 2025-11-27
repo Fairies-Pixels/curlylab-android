@@ -1,5 +1,6 @@
 [versions]
 agp = "8.11.2"
+datastorePreferences = "1.2.0"
 kotlin = "2.2.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -17,6 +18,7 @@ materialIcons = "1.7.8"
 json = "20250517"
 okhttp = "5.3.0"
 retrofit = "3.0.0"
+securityCrypto = "1.1.0"
 serialization = "1.9.0"
 retrofit2KotlinxSerializationConverter = "1.0.0"
 coil = "2.7.0"
@@ -24,6 +26,8 @@ accompanistSwiperefresh = "0.36.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
