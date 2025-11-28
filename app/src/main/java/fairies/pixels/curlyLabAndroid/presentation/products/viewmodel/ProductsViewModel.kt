@@ -3,6 +3,7 @@ package fairies.pixels.curlyLabAndroid.presentation.products.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fairies.pixels.curlyLabAndroid.data.local.AuthDataStore
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.ReviewRequest
 import fairies.pixels.curlyLabAndroid.domain.model.products.Favorite
 import fairies.pixels.curlyLabAndroid.domain.model.products.Product
@@ -32,7 +33,8 @@ class ProductsViewModel @Inject constructor(
     private val getReviewsUseCase: GetReviewsUseCase,
     private val addReviewUseCase: AddReviewUseCase,
     private val updateReviewUseCase: UpdateReviewUseCase,
-    private val deleteReviewUseCase: DeleteReviewUseCase
+    private val deleteReviewUseCase: DeleteReviewUseCase,
+    private val authDataStore: AuthDataStore
 ) : ViewModel() {
 
     private val _products = MutableStateFlow<List<Product>>(emptyList())
@@ -61,6 +63,9 @@ class ProductsViewModel @Inject constructor(
     val coloringTag: StateFlow<String?> = _coloringTag.asStateFlow()
     val thicknessTag: StateFlow<String?> = _thicknessTag.asStateFlow()
 
+    private val _userId = MutableStateFlow<UUID?>(null)
+    val userId: StateFlow<UUID?> = _userId.asStateFlow()
+
     val filteredProducts: StateFlow<List<Product>> = combine(
         _products,
         _porosityTag,
@@ -86,8 +91,25 @@ class ProductsViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
-        loadProducts()
-        loadFavorites()
+        loadUserId()
+    }
+
+    private fun loadUserId() {
+        viewModelScope.launch {
+            try {
+                val userIdString = authDataStore.getUserId()
+                val userId = userIdString?.let { UUID.fromString(it) }
+                _userId.value = userId
+                if (userId != null) {
+                    loadProducts()
+                    loadFavorites(userId)
+                } else {
+                    _error.value = "Пользователь не авторизован"
+                }
+            } catch (e: Exception) {
+                _error.value = "Ошибка загрузки ID пользователя: ${e.message}"
+            }
+        }
     }
 
     private fun loadProducts() {
@@ -104,10 +126,9 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
-    private fun loadFavorites() {
+    private fun loadFavorites(userId: UUID) {
         viewModelScope.launch {
             try {
-                val userId = getCurrentUserId()
                 _favorites.value = getUserFavoritesUseCase(userId)
             } catch (e: Exception) {
                 _error.value = "Ошибка загрузки избранного: ${e.message}"
@@ -119,8 +140,7 @@ class ProductsViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val userName = getCurrentUsername()
-                _reviews.value = getReviewsUseCase(productId, userName)
+                _reviews.value = getReviewsUseCase(productId)
                 _error.value = null
             } catch (e: Exception) {
                 _error.value = "Ошибка загрузки отзывов: ${e.message}"
@@ -133,14 +153,18 @@ class ProductsViewModel @Inject constructor(
     fun toggleFavorite(productId: UUID) {
         viewModelScope.launch {
             try {
-                val userId = getCurrentUserId()
-                toggleFavoriteUseCase(userId, productId)
+                val userId = _userId.value
+                if (userId != null) {
+                    toggleFavoriteUseCase(userId, productId)
 
-                val isCurrentlyFavorite = _favorites.value.any { it.productId == productId }
-                if (isCurrentlyFavorite) {
-                    _favorites.value = _favorites.value.filter { it.productId != productId }
+                    val isCurrentlyFavorite = _favorites.value.any { it.productId == productId }
+                    if (isCurrentlyFavorite) {
+                        _favorites.value = _favorites.value.filter { it.productId != productId }
+                    } else {
+                        _favorites.value = _favorites.value + Favorite(userId, productId)
+                    }
                 } else {
-                    _favorites.value = _favorites.value + Favorite(userId, productId)
+                    _error.value = "Пользователь не авторизован"
                 }
             } catch (e: Exception) {
                 _error.value = "Не удалось обновить избранное: ${e.message}"
@@ -152,12 +176,17 @@ class ProductsViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val response = addReviewUseCase(productId, mark, reviewText)
-                if (response.isSuccessful) {
-                    loadReviews(productId)
-                    _error.value = null
+                val userId = _userId.value
+                if (userId != null) {
+                    val response = addReviewUseCase(userId, productId, mark, reviewText)
+                    if (response.isSuccessful) {
+                        loadReviews(productId)
+                        _error.value = null
+                    } else {
+                        _error.value = "Ошибка при отправке отзыва: ${response.code()}"
+                    }
                 } else {
-                    _error.value = "Ошибка при отправке отзыва: ${response.code()}"
+                    _error.value = "Пользователь не авторизован"
                 }
             } catch (e: Exception) {
                 _error.value = "Ошибка при отправке отзыва: ${e.message}"
@@ -171,15 +200,14 @@ class ProductsViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val userId = getCurrentUserId()
-                val request = ReviewRequest(
-                    userId = userId,
-                    mark = mark,
-                    review = reviewText
-                )
-                updateReviewUseCase(productId, reviewId, request)
-                loadReviews(productId)
-                _error.value = null
+                val userId = _userId.value
+                if (userId != null) {
+                    updateReviewUseCase(userId, productId, reviewId, mark, reviewText)
+                    loadReviews(productId)
+                    _error.value = null
+                } else {
+                    _error.value = "Пользователь не авторизован"
+                }
             } catch (e: Exception) {
                 _error.value = "Ошибка при обновлении отзыва: ${e.message}"
             } finally {
@@ -204,11 +232,11 @@ class ProductsViewModel @Inject constructor(
     }
 
     suspend fun getCurrentUserId(): UUID {
-        return UUID.fromString("11111111-1111-1111-1111-111111111111")
+        return _userId.value ?: throw IllegalStateException("Пользователь не авторизован")
     }
 
     suspend fun getCurrentUsername(): String {
-        return "user1"
+        return authDataStore.getUsername() ?: "user"
     }
 
     fun toggleTag(category: String, tag: String) {
@@ -234,8 +262,13 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun refreshData() {
-        loadProducts()
-        loadFavorites()
+        val currentUserId = _userId.value
+        if (currentUserId != null) {
+            loadProducts()
+            loadFavorites(currentUserId)
+        } else {
+            loadUserId()
+        }
     }
 }
 

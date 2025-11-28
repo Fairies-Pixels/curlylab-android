@@ -14,6 +14,7 @@ import javax.inject.Inject
 class ProductsRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ) : ProductsRepository {
+
     override suspend fun getProducts(): List<ProductResponse> {
         return apiService.getAllProducts()
     }
@@ -26,49 +27,45 @@ class ProductsRepositoryImpl @Inject constructor(
         return apiService.getUserFavorites(userId.toString())
     }
 
-    override suspend fun isFavorite(
-        userId: UUID,
-        productId: UUID
-    ): Boolean {
+    override suspend fun isFavorite(userId: UUID, productId: UUID): Boolean {
         return apiService.isProductFavorite(
             productId = productId.toString(),
             userId = userId.toString()
         )
     }
 
-    override suspend fun addToFavorites(request: FavoriteRequest) {
-        apiService.addToFavorites(getCurrentUserId().toString(), request)
+    override suspend fun addToFavorites(userId: UUID, productId: UUID) {
+        val request = FavoriteRequest(productId = productId)
+        apiService.addToFavorites(userId.toString(), request)
     }
 
-    override suspend fun removeFromFavorites(request: FavoriteRequest) {
-        apiService.removeFromFavorites(getCurrentUserId().toString(), request.productId.toString())
+    override suspend fun removeFromFavorites(userId: UUID, productId: UUID) {
+        apiService.removeFromFavorites(userId.toString(), productId.toString())
     }
 
     override suspend fun getReviews(productId: UUID): List<ReviewResponse> {
         return apiService.getProductReviews(productId.toString())
     }
 
-    override suspend fun addReview(productId: UUID, mark: Int, review: String): Response<Unit> {
+    override suspend fun addReview(userId: UUID, productId: UUID, mark: Int, review: String): Response<Unit> {
         val request = ReviewRequest(
-            userId = getCurrentUserId(),
+            userId = userId,
             mark = mark,
             review = review
         )
         return apiService.createReview(productId.toString(), request)
     }
 
-    override suspend fun updateReview(productId: UUID, reviewId: UUID, request: ReviewRequest) {
+    override suspend fun updateReview(userId: UUID, productId: UUID, reviewId: UUID, mark: Int, review: String) {
+        val request = ReviewRequest(
+            userId = userId,
+            mark = mark,
+            review = review
+        )
         apiService.updateReview(productId.toString(), reviewId.toString(), request)
     }
+
     override suspend fun deleteReview(productId: UUID, reviewId: UUID) {
         apiService.deleteReview(productId.toString(), reviewId.toString())
-    }
-
-    override suspend fun getCurrentUserId(): UUID {
-        return UUID.fromString("11111111-1111-1111-1111-111111111111")
-    }
-
-    override suspend fun getCurrentUserName(): String {
-        return "user1"
     }
 }

@@ -6,9 +6,9 @@ import java.util.UUID
 import javax.inject.Inject
 
 class UpdateReviewUseCase @Inject constructor(
-    private val repository: ProductsRepository
+    private val productsRepository: ProductsRepository
 ) {
-    suspend operator fun invoke(productId: UUID, reviewId: UUID, request: ReviewRequest) {
-        repository.updateReview(productId, reviewId, request)
+    suspend operator fun invoke(userId: UUID, productId: UUID, reviewId: UUID, mark: Int, reviewText: String) {
+        productsRepository.updateReview(userId, productId, reviewId, mark, reviewText)
     }
 }
