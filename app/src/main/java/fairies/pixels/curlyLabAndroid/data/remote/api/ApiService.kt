@@ -1,5 +1,6 @@
 package fairies.pixels.curlyLabAndroid.data.remote.api
 
+import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.GoogleRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.LoginRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.RegisterRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.FavoriteRequest
@@ -7,12 +8,12 @@ import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.ReviewR
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.HairTypeRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.UserRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.auth.AuthResponse
+import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResult
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.FavoriteResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ProductResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ReviewResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.HairTypeResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.UserResponse
-import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResult
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -118,6 +119,9 @@ interface ApiService {
 
     @POST("auth/register")
     suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
+
+    @POST("auth/google")
+    suspend fun googleLogin(@Body request: GoogleRequest): Response<AuthResponse>
 
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
