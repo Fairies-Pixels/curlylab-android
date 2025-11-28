@@ -250,7 +250,7 @@ fun SignInScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
-                        enabled = !isLoading,
+                        enabled = !isLoading, // Блокируем кнопку во время загрузки
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
                             contentColor = DarkGreen
@@ -262,21 +262,28 @@ fun SignInScreen(
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.pink_star),
-                                contentDescription = "Google",
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                color = DarkGreen,
                                 modifier = Modifier.size(20.dp)
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Войти через Google",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
+                        } else {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.google_icon),
+                                    contentDescription = "Google",
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Войти через Google",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }

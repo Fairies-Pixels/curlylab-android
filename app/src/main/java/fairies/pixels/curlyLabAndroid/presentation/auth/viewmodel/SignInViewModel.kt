@@ -3,6 +3,7 @@ package fairies.pixels.curlyLabAndroid.presentation.auth.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fairies.pixels.curlyLabAndroid.domain.usecase.auth.GoogleSignInUseCase
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.SignInUseCase
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.ValidatePasswordUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val signInUseCase: SignInUseCase,
+    private val googleSignInUseCase: GoogleSignInUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase
 ) : ViewModel() {
 
@@ -70,6 +72,28 @@ class SignInViewModel @Inject constructor(
                 onSuccess()
             } else {
                 _errorMessage.value = result.exceptionOrNull()?.message ?: "Ошибка входа"
+            }
+        }
+    }
+
+    fun signInWithGoogle(idToken: String, onSuccess: () -> Unit) {
+        _isLoading.value = true
+        _errorMessage.value = null
+
+        viewModelScope.launch {
+            try {
+                val result = googleSignInUseCase(idToken)
+                _isLoading.value = false
+
+                if (result.isSuccess) {
+                    _errorMessage.value = null
+                    onSuccess()
+                } else {
+                    _errorMessage.value = result.exceptionOrNull()?.message ?: "Ошибка Google входа"
+                }
+            } catch (e: Exception) {
+                _isLoading.value = false
+                _errorMessage.value = "Ошибка сети: ${e.message}"
             }
         }
     }
