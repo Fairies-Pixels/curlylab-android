@@ -15,6 +15,7 @@ import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.UserRes
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResult
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -115,6 +116,12 @@ interface ApiService {
         @Part file: MultipartBody.Part?,
         @Part("text") text: RequestBody?
     ): AnalysisResult
+
+    @Multipart
+    @POST("/analyze")
+    suspend fun analyzeHair(
+        @Part file: MultipartBody.Part
+    ): Response<ResponseBody>
 
     @POST("auth/register")
     suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
