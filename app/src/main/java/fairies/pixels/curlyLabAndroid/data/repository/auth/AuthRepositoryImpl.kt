@@ -2,6 +2,7 @@ package fairies.pixels.curlyLabAndroid.data.repository.auth
 
 import fairies.pixels.curlyLabAndroid.data.local.AuthDataStore
 import fairies.pixels.curlyLabAndroid.data.remote.api.ApiService
+import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.GoogleRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.LoginRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.RegisterRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.auth.AuthResponse
@@ -34,6 +35,7 @@ class AuthRepositoryImpl @Inject constructor(
                     accessToken = authResponse.access,
                     refreshToken = authResponse.refresh,
                     userId = userId,
+                    username = username,
                     email = email
                 )
                 Result.success(authResponse)
@@ -61,6 +63,7 @@ class AuthRepositoryImpl @Inject constructor(
                     accessToken = authResponse.access,
                     refreshToken = authResponse.refresh,
                     userId = userId,
+                    username = authResponse.username,
                     email = email
                 )
                 Result.success(authResponse)
@@ -73,6 +76,33 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun loginWithGoogle(idToken: String): Result<AuthResponse> {
+        return try {
+            val response = authApiService.googleLogin(GoogleRequest(idToken))
+            if (response.isSuccessful) {
+                val authResponse =
+                    response.body() ?: return Result.failure(Exception("Empty response body"))
+
+                val userId = JwtDecoder.decodeUserId(authResponse.access)
+                    ?: return Result.failure(Exception("Failed to decode user ID from token"))
+
+                authDataStore.saveAuthData(
+                    isLoggedIn = true,
+                    accessToken = authResponse.access,
+                    refreshToken = authResponse.refresh,
+                    userId = userId,
+                    username = authResponse.username,
+                    email = authResponse.email
+                )
+                Result.success(authResponse)
+            } else {
+                val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Google login failed: ${response.code()} - $errorBody"))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Network error: ${e.message}"))
+        }
+    }
 
     override suspend fun isUserLoggedIn(): Boolean {
         return authDataStore.isLoggedIn.first()

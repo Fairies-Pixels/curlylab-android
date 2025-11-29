@@ -5,6 +5,7 @@ import fairies.pixels.curlyLabAndroid.data.remote.model.response.auth.AuthRespon
 interface AuthRepository {
     suspend fun register(email: String, password: String, username: String): Result<AuthResponse>
     suspend fun login(email: String, password: String): Result<AuthResponse>
+    suspend fun loginWithGoogle(idToken: String): Result<AuthResponse>
     suspend fun isUserLoggedIn(): Boolean
     suspend fun logout()
     suspend fun getAccessToken(): String?

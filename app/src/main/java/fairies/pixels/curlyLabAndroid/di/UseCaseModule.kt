@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import fairies.pixels.curlyLabAndroid.domain.repository.auth.AuthRepository
 import fairies.pixels.curlyLabAndroid.domain.repository.products.ProductsRepository
+import fairies.pixels.curlyLabAndroid.domain.repository.profile.UsersRepository
+import fairies.pixels.curlyLabAndroid.domain.usecase.auth.GoogleSignInUseCase
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.SignInUseCase
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.SignUpUseCase
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.ValidatePasswordUseCase
@@ -42,8 +44,11 @@ object UseCaseModule {
     }
 
     @Provides
-    fun provideGetReviewsUseCase(repository: ProductsRepository): GetReviewsUseCase {
-        return GetReviewsUseCase(repository)
+    fun provideGetReviewsUseCase(
+        productsRepository: ProductsRepository,
+        usersRepository: UsersRepository
+    ): GetReviewsUseCase {
+        return GetReviewsUseCase(productsRepository, usersRepository)
     }
 
     @Provides
@@ -64,6 +69,11 @@ object UseCaseModule {
     @Provides
     fun provideSignInUseCase(authRepository: AuthRepository): SignInUseCase {
         return SignInUseCase(authRepository)
+    }
+
+    @Provides
+    fun provideGoogleSignInUseCase(authRepository: AuthRepository): GoogleSignInUseCase {
+        return GoogleSignInUseCase(authRepository)
     }
 
     @Provides
