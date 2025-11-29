@@ -42,6 +42,16 @@ interface ApiService {
     @DELETE("/users/{id}")
     suspend fun deleteUser(@Path("id") userId: String)
 
+    @Multipart
+    @POST("/users/{id}/upload_image")
+    suspend fun uploadUserAvatar(
+        @Path("id") userId: String,
+        @Part file: MultipartBody.Part
+    ): Map<String, String>
+
+    @DELETE("/users/{id}/avatar")
+    suspend fun deleteUserAvatar(@Path("id") userId: String): Map<String, String>
+
     @GET("/hairtypes")
     suspend fun getAllHairTypes(): List<HairTypeResponse>
 

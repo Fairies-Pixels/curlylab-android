@@ -1,7 +1,10 @@
 package fairies.pixels.curlyLabAndroid.presentation.profile.screen
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -159,6 +163,21 @@ fun ProfileScreen(
                                         )
                                     }
                                 )
+
+                                DropdownMenuItem(
+                                    text = { Text("Удалить аватар") },
+                                    onClick = {
+                                        viewModel.deleteAvatar()
+                                        expanded = false
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.RemoveCircle,
+                                            contentDescription = null,
+                                            tint = LightPink
+                                        )
+                                    }
+                                )
                             }
                         }
                     }
@@ -201,12 +220,18 @@ fun ProfileScreen(
 fun ProfileImagePicker(
     profileViewModel: ProfileViewModel
 ) {
-    val imageUrl: String? = null
+    val imageUrl by profileViewModel.imageUrl.collectAsState()
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let { profileViewModel.uploadAvatar(it) }
+    }
 
     Box(
         modifier = Modifier
             .size(80.dp)
             .clip(CircleShape)
+            .clickable { launcher.launch("image/*") }
             .border(2.dp, LightPink, CircleShape),
         contentAlignment = Alignment.Center
     ) {

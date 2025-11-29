@@ -1,6 +1,7 @@
 package fairies.pixels.curlyLabAndroid.presentation.profile.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -106,7 +111,7 @@ class ProfileViewModel @Inject constructor(
     fun deleteAccount() {
         viewModelScope.launch {
             try {
-                val userId = authDataStore.getUserId()
+                val userId = _userId.value ?: return@launch
                 if (userId != null) {
                     withContext(Dispatchers.IO) {
                         usersRepository.deleteUser(userId)
@@ -120,5 +125,67 @@ class ProfileViewModel @Inject constructor(
                 _deleteState.value = Result.failure(e)
             }
         }
+    }
+
+    fun uploadAvatar(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+
+                val userId = _userId.value ?: return@launch
+
+                val context = getApplication<Application>()
+                val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
+
+                val file = uriToFile(uri)
+
+                val requestBody = file.asRequestBody(mimeType.toMediaType())
+                val part = MultipartBody.Part.createFormData(
+                    name = "file",
+                    filename = file.name,
+                    body = requestBody
+                )
+
+                val imageUrl = usersRepository.uploadUserAvatar(userId, file, part)
+                _imageUrl.value = imageUrl
+
+            } catch (e: Exception) {
+                _error.value = "Ошибка загрузки фото: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun deleteAvatar() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val userId = _userId.value ?: return@launch
+                usersRepository.deleteUserAvatar(userId)
+
+                _imageUrl.value = null
+                _error.value = null
+
+            } catch (e: Exception) {
+                _error.value = "Ошибка удаления аватара: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    private fun uriToFile(uri: Uri): File {
+        val context = getApplication<Application>()
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val file = File(context.cacheDir, "upload_${System.currentTimeMillis()}.jpg")
+
+        inputStream.use { input ->
+            file.outputStream().use { output ->
+                input?.copyTo(output)
+            }
+        }
+
+        return file
     }
 }
