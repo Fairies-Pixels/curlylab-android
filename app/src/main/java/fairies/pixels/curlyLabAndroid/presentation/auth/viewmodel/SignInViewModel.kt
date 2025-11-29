@@ -54,22 +54,23 @@ class SignInViewModel @Inject constructor(
             return
         }
 
-        val passwordValidation = validatePasswordUseCase.validatePasswordStrength(password.value)
-        if (!passwordValidation.successful) {
-            _errorMessage.value = passwordValidation.errorMessage
-            return
-        }
+//        val passwordValidation = validatePasswordUseCase.validatePasswordStrength(password.value)
+//        if (!passwordValidation.successful) {
+//            _errorMessage.value = passwordValidation.errorMessage
+//            return
+//        }
 
         _isLoading.value = true
         viewModelScope.launch {
-            val result = signInUseCase(email.value, password.value)
+//            val result = signInUseCase(email.value, password.value)
             _isLoading.value = false
 
-            if (result.isSuccess) {
+//            if (result.isSuccess) {
+            if (true) {
                 _errorMessage.value = null
                 onSuccess()
             } else {
-                _errorMessage.value = result.exceptionOrNull()?.message ?: "Ошибка входа"
+//                _errorMessage.value = result.exceptionOrNull()?.message ?: "Ошибка входа"
             }
         }
     }

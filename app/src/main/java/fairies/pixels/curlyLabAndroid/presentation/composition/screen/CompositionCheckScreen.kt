@@ -8,7 +8,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -52,10 +54,15 @@ fun CompositionCheckScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(LightBeige)
-            .padding(24.dp),
-        verticalArrangement = Arrangement.SpaceBetween
+            .padding(24.dp)
     ) {
-        Column {
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+        ) {
+
             Text(
                 text = "Проверка состава",
                 style = MaterialTheme.typography.displayLarge,
@@ -86,45 +93,38 @@ fun CompositionCheckScreen(navController: NavController) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(
-                    onClick = { imagePickerLauncher.launch("image/*") },
-                    colors = ButtonDefaults.buttonColors(containerColor = BrightPink),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Загрузить фото", color = Color.White, fontFamily = Golos)
-                }
-
-                Button(
-                    onClick = {
-                        viewModel.analyze(context, imageUri)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Проверить", color = Color.White, fontFamily = Golos)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (result.isNotBlank()) {
+            if (result.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    result,
-                    color = DarkGreen,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 12.dp),
-                    fontFamily = Golos
+                    text = result,
+                    color = DarkGreen
                 )
             }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = { imagePickerLauncher.launch("image/*") },
+                colors = ButtonDefaults.buttonColors(containerColor = BrightPink),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Загрузить фото", color = Color.White, fontFamily = Golos)
+            }
+
+            Button(
+                onClick = { viewModel.analyze(context, imageUri) },
+                colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Проверить", color = Color.White, fontFamily = Golos)
+            }
+        }
     }
 }

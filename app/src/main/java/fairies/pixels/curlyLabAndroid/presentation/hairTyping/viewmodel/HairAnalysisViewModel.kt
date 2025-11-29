@@ -24,9 +24,6 @@ class HairAnalysisViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    /**
-     * Анализ фото волос через ByteArray
-     */
     fun analyze(imageBytes: ByteArray) {
         viewModelScope.launch {
             _isLoading.value = true

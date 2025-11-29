@@ -38,7 +38,6 @@ fun HairAnalysisScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    // ---------- URI SAVER (как в CompositionCheckScreen) ----------
     val UriSaver: Saver<Uri?, String> = Saver(
         save = { it?.toString() ?: "" },
         restore = { if (it.isNotEmpty()) Uri.parse(it) else null }
@@ -64,7 +63,6 @@ fun HairAnalysisScreen(
         }
     }
 
-    // ---------- BOTTOM SHEET ----------
     val bottomSheetState = rememberBottomSheetScaffoldState()
 
     LaunchedEffect(result, error) {
@@ -152,7 +150,6 @@ fun HairAnalysisScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // ---------- Выбранное фото ----------
                 selectedImageUri?.let { uri ->
                     AsyncImage(
                         model = uri,
@@ -165,7 +162,6 @@ fun HairAnalysisScreen(
                 }
             }
 
-            // ---------- Кнопки ----------
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()

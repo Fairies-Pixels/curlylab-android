@@ -7,6 +7,7 @@ import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.ReviewR
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.HairTypeRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.UserRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.auth.AuthResponse
+import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.FavoriteResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ProductResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ReviewResponse
@@ -115,7 +116,7 @@ interface ApiService {
     suspend fun analyzeComposition(
         @Part file: MultipartBody.Part?,
         @Part("text") text: RequestBody?
-    ): AnalysisResult
+    ): AnalysisResponse
 
     @Multipart
     @POST("/analyze")
