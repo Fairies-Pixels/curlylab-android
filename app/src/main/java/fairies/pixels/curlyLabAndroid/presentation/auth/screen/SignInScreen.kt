@@ -250,7 +250,7 @@ fun SignInScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
-                        enabled = !isLoading, // Блокируем кнопку во время загрузки
+                        enabled = !isLoading,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
                             contentColor = DarkGreen
