@@ -1,5 +1,6 @@
 package fairies.pixels.curlyLabAndroid.data.remote.api
 
+import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.GoogleRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.LoginRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.RegisterRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.FavoriteRequest
@@ -13,7 +14,6 @@ import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.Produc
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ReviewResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.HairTypeResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.UserResponse
-import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResult
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -42,6 +42,16 @@ interface ApiService {
 
     @DELETE("/users/{id}")
     suspend fun deleteUser(@Path("id") userId: String)
+
+    @Multipart
+    @POST("/users/{id}/upload_image")
+    suspend fun uploadUserAvatar(
+        @Path("id") userId: String,
+        @Part file: MultipartBody.Part
+    ): Map<String, String>
+
+    @DELETE("/users/{id}/avatar")
+    suspend fun deleteUserAvatar(@Path("id") userId: String): Map<String, String>
 
     @GET("/hairtypes")
     suspend fun getAllHairTypes(): List<HairTypeResponse>
@@ -126,6 +136,9 @@ interface ApiService {
 
     @POST("auth/register")
     suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
+
+    @POST("auth/google")
+    suspend fun googleLogin(@Body request: GoogleRequest): Response<AuthResponse>
 
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>

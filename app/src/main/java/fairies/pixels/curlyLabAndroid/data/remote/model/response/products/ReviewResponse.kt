@@ -3,7 +3,6 @@ package fairies.pixels.curlyLabAndroid.data.remote.model.response.products
 import fairies.pixels.curlyLabAndroid.domain.model.products.Review
 import fairies.pixels.curlyLabAndroid.utils.serializers.UUIDSerializer
 import kotlinx.serialization.Serializable
-import java.time.OffsetDateTime
 import java.util.UUID
 
 @Serializable

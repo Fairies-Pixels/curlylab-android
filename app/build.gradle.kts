@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,11 +9,20 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+val localProperties = Properties().apply {
+    load(project.rootProject.file("local.properties").inputStream())
+}
+
 android {
     namespace = "fairies.pixels.curlyLabAndroid"
     compileSdk = 36
 
     defaultConfig {
+        buildConfigField(
+            "String",
+            "GOOGLE_CLIENT_ID",
+            "\"${localProperties.getProperty("GOOGLE_CLIENT_ID")}\"")
+
         applicationId = "fairies.pixels.curlyLabAndroid"
         minSdk = 26
         targetSdk = 34
@@ -39,8 +50,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+        freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
@@ -54,6 +67,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.play.services.auth)
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.hilt.android)
