@@ -34,7 +34,7 @@ class CompositionViewModel @Inject constructor(
         _inputText.value = newText
     }
 
-    fun analyze(context: Context, imageUri: Uri?) {
+    fun analyze( context: Context, imageUri: Uri?) {
         _result.value = "Анализируем..."
         viewModelScope.launch {
             try {
@@ -69,16 +69,14 @@ class CompositionViewModel @Inject constructor(
                 val textPart = _inputText.value.takeIf { it.isNotBlank() }
                     ?.toRequestBody("text/plain".toMediaTypeOrNull())
 
-                val res: AnalysisResult = api.analyzeComposition(
-                    file = filePart,
-                    text = textPart
-                )
+                val res = api.analyzeComposition(filePart, textPart)
+                val body = res.result
 
-                _result.value = if (res.issues.isNullOrEmpty()) {
+                _result.value = if (body?.issues.isNullOrEmpty()) {
                     "Всё в порядке!"
                 } else {
-                    val list = res.issues.joinToString("\n\n") { issue ->
-                        " ${issue.ingredient}\nКатегория: ${issue.category}\nПричина: ${issue.reason}"
+                    val list = body!!.issues!!.joinToString("\n\n") { issue ->
+                        "Ингредиент: ${issue.ingredient}\nКатегория: ${issue.category}\nПричина: ${issue.reason}"
                     }
                     "Обнаружены проблемы:\n\n$list"
                 }

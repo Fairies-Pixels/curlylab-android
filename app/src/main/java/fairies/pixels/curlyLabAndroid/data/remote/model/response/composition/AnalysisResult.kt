@@ -1,12 +1,23 @@
 package fairies.pixels.curlyLabAndroid.data.remote.model.response.composition
 
-data class AnalysisIssue(
-    val ingredient: String,
-    val category: String,
-    val reason: String
-)
+import kotlinx.serialization.Serializable
 
+@Serializable
+data class AnalysisResponse(
+    val status: String?,
+    val result: AnalysisResult?
+)
+@Serializable
 data class AnalysisResult(
-    val result: String,
-    val issues: List<AnalysisIssue>? = null
+    val ok: Boolean?,
+    val raw_text_excerpt: String?,
+    val issues_count: Int?,
+    val issues: List<AnalysisIssue>?,
+    val result: String?
+)
+@Serializable
+data class AnalysisIssue(
+    val ingredient: String?,
+    val category: String?,
+    val reason: String?
 )

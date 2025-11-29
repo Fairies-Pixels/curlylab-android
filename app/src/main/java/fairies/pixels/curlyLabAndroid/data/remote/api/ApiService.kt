@@ -8,7 +8,7 @@ import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.ReviewR
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.HairTypeRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.UserRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.auth.AuthResponse
-import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResult
+import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.FavoriteResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ProductResponse
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ReviewResponse
@@ -16,6 +16,7 @@ import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.HairTyp
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.UserResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -125,7 +126,13 @@ interface ApiService {
     suspend fun analyzeComposition(
         @Part file: MultipartBody.Part?,
         @Part("text") text: RequestBody?
-    ): AnalysisResult
+    ): AnalysisResponse
+
+    @Multipart
+    @POST("/analyze")
+    suspend fun analyzeHair(
+        @Part file: MultipartBody.Part
+    ): Response<ResponseBody>
 
     @POST("auth/register")
     suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
