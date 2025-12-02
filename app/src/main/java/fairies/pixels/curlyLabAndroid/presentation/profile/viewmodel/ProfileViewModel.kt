@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fairies.pixels.curlyLabAndroid.data.local.AuthDataStore
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.HairTypeResponse
+import fairies.pixels.curlyLabAndroid.domain.repository.auth.AuthRepository
 import fairies.pixels.curlyLabAndroid.domain.repository.profile.HairTypesRepository
 import fairies.pixels.curlyLabAndroid.domain.repository.profile.UsersRepository
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +26,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val usersRepository: UsersRepository,
     private val hairTypeRepository: HairTypesRepository,
+    private val authRepository: AuthRepository,
     private val authDataStore: AuthDataStore,
     application: Application
 ) : AndroidViewModel(application) {
@@ -42,7 +44,11 @@ class ProfileViewModel @Inject constructor(
     val error: StateFlow<String?> = _error.asStateFlow()
 
     private val _logoutState = MutableStateFlow<Result<Unit>?>(null)
+    val logoutState: StateFlow<Result<Unit>?> = _logoutState.asStateFlow()
+
     private val _deleteState = MutableStateFlow<Result<Unit>?>(null)
+    val deleteState: StateFlow<Result<Unit>?> = _deleteState.asStateFlow()
+
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
@@ -108,23 +114,44 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun deleteAccount() {
+    fun logout() {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                val userId = _userId.value ?: return@launch
-                if (userId != null) {
-                    withContext(Dispatchers.IO) {
-                        usersRepository.deleteUser(userId)
-                    }
-                    _deleteState.value = Result.success(Unit)
-                    //logout()
-                } else {
-                    _deleteState.value = Result.failure(Exception("Пользователь не найден"))
-                }
+                authRepository.logout()
+                _logoutState.value = Result.success(Unit)
+                _error.value = null
             } catch (e: Exception) {
-                _deleteState.value = Result.failure(e)
+                _error.value = "Ошибка выхода: ${e.message}"
+                _logoutState.value = Result.failure(e)
+            } finally {
+                _isLoading.value = false
             }
         }
+    }
+
+    fun deleteAccount() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val userId = _userId.value
+                if (userId != null) {
+                    authRepository.deleteAccount(userId)
+                    _deleteState.value = Result.success(Unit)
+                    _error.value = null
+                }
+            } catch (e: Exception) {
+                _error.value = "Ошибка удаления аккаунта: ${e.message}"
+                _deleteState.value = Result.failure(e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetStates() {
+        _logoutState.value = null
+        _deleteState.value = null
     }
 
     fun uploadAvatar(uri: Uri) {

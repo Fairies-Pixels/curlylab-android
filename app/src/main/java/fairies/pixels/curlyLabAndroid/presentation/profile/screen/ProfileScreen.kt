@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.RemoveCircle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -30,7 +31,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,13 +64,23 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     navController: NavController
 ) {
+    val logoutState by viewModel.logoutState.collectAsState()
+    val deleteState by viewModel.deleteState.collectAsState()
     val error by viewModel.error.collectAsState()
     val userName by viewModel.userName.collectAsState()
     val hairType by viewModel.hairType.collectAsState()
 
     var expanded by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
-
+    LaunchedEffect(logoutState, deleteState) {
+        if (logoutState?.isSuccess == true || deleteState?.isSuccess == true) {
+            navController.navigate(Screen.AuthGraph.route) {
+                popUpTo(0) { inclusive = true }
+            }
+            viewModel.resetStates()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -135,8 +148,7 @@ fun ProfileScreen(
                                 DropdownMenuItem(
                                     text = { Text("Выйти") },
                                     onClick = {
-                                        //viewModel.logout()
-                                        navController.navigate(Screen.AuthGraph.route)
+                                        viewModel.logout()
                                         expanded = false
                                     },
                                     leadingIcon = {
@@ -151,8 +163,7 @@ fun ProfileScreen(
                                 DropdownMenuItem(
                                     text = { Text("Удалить аккаунт") },
                                     onClick = {
-                                        viewModel.deleteAccount()
-                                        navController.navigate(Screen.AuthGraph.route)
+                                        showDeleteDialog = true
                                         expanded = false
                                     },
                                     leadingIcon = {
@@ -213,6 +224,31 @@ fun ProfileScreen(
                 error != null -> ErrorMessage(error ?: "Неизвестная ошибка")
             }
         }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Удаление аккаунта") },
+            text = { Text("Вы уверены, что хотите удалить аккаунт? Это действие нельзя отменить.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteAccount()
+                        showDeleteDialog = false
+                    }
+                ) {
+                    Text("Удалить", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text("Отмена")
+                }
+            }
+        )
     }
 }
 

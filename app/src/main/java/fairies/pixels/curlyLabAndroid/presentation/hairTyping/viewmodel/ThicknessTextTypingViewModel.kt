@@ -3,6 +3,7 @@ package fairies.pixels.curlyLabAndroid.presentation.hairTyping.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fairies.pixels.curlyLabAndroid.data.local.AuthDataStore
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.HairTypeRequest
 import fairies.pixels.curlyLabAndroid.domain.repository.profile.HairTypesRepository
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.Answer
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ThicknessTextTypingViewModel @Inject constructor(
-    private val hairTypesRepository: HairTypesRepository
+    private val hairTypesRepository: HairTypesRepository,
+    private val authDataStore: AuthDataStore
 ) : ViewModel() {
 
     private val _questions = MutableStateFlow<List<Question>>(porosityQuestions)
@@ -79,18 +81,20 @@ class ThicknessTextTypingViewModel @Inject constructor(
     fun saveResult() {
         viewModelScope.launch {
             try {
-                val userId = "07eeb4d3-9c17-4aa6-89bd-5e080385520b"
-                try {
-                    hairTypesRepository.updateHairType(
-                        userId,
-                        HairTypeRequest(
-                            userId = userId,
-                            thickness = _result.value?.dbCode
+                val userId = authDataStore.getUserId()
+                if (userId != null) {
+                    try {
+                        hairTypesRepository.updateHairType(
+                            userId,
+                            HairTypeRequest(
+                                userId = userId,
+                                thickness = _result.value?.dbCode
+                            )
                         )
-                    )
-                    _saved.value = true
-                } catch (e: Exception) {
-                    _saved.value = false
+                        _saved.value = true
+                    } catch (e: Exception) {
+                        _saved.value = false
+                    }
                 }
             } catch (e: Exception) {
                 _saved.value = false
