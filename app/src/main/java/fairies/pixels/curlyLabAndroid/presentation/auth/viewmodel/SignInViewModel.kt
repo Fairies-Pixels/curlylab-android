@@ -3,6 +3,7 @@ package fairies.pixels.curlyLabAndroid.presentation.auth.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fairies.pixels.curlyLabAndroid.domain.usecase.auth.AuthErrors
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.GoogleSignInUseCase
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.SignInUseCase
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.ValidatePasswordUseCase
@@ -52,7 +53,7 @@ class SignInViewModel @Inject constructor(
 
     fun signIn(onSuccess: () -> Unit) {
         if (email.value.isEmpty() || password.value.isEmpty()) {
-            _errorMessage.value = "Пожалуйста, заполните все поля"
+            _errorMessage.value = AuthErrors.FIELDS_REQUIRED
             return
         }
 
@@ -71,7 +72,7 @@ class SignInViewModel @Inject constructor(
                 _errorMessage.value = null
                 onSuccess()
             } else {
-                _errorMessage.value = result.exceptionOrNull()?.message ?: "Ошибка входа"
+                _errorMessage.value = result.exceptionOrNull()?.message ?: AuthErrors.LOGIN_FAILED
             }
         }
     }
@@ -89,11 +90,11 @@ class SignInViewModel @Inject constructor(
                     _errorMessage.value = null
                     onSuccess()
                 } else {
-                    _errorMessage.value = result.exceptionOrNull()?.message ?: "Ошибка Google входа"
+                    _errorMessage.value = result.exceptionOrNull()?.message ?: AuthErrors.GOOGLE_LOGIN_FAILED
                 }
             } catch (e: Exception) {
                 _isLoading.value = false
-                _errorMessage.value = "Ошибка сети: ${e.message}"
+                _errorMessage.value = "${AuthErrors.NETWORK_ERROR}: ${e.message}"
             }
         }
     }

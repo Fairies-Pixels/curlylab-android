@@ -12,11 +12,11 @@ class SignInUseCase @Inject constructor(
         password: String
     ): Result<AuthResponse> {
         if (!isValidEmail(email)) {
-            return Result.failure(IllegalArgumentException("Invalid email format"))
+            return Result.failure(IllegalArgumentException(AuthErrors.INVALID_EMAIL))
         }
 
         if (password.isEmpty()) {
-            return Result.failure(IllegalArgumentException("Password cannot be empty"))
+            return Result.failure(IllegalArgumentException(AuthErrors.PASSWORD_EMPTY))
         }
 
         return authRepository.login(email, password)
