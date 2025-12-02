@@ -13,15 +13,19 @@ class SignUpUseCase @Inject constructor(
         username: String
     ): Result<AuthResponse> {
         if (!isValidEmail(email)) {
-            return Result.failure(IllegalArgumentException("Invalid email format"))
+            return Result.failure(IllegalArgumentException(AuthErrors.INVALID_EMAIL))
         }
 
         if (password.length < 6) {
-            return Result.failure(IllegalArgumentException("Password must be at least 6 characters"))
+            return Result.failure(IllegalArgumentException(AuthErrors.PASSWORD_TOO_SHORT))
         }
 
         if (username.length < 2) {
-            return Result.failure(IllegalArgumentException("Username must be at least 2 characters"))
+            return Result.failure(IllegalArgumentException(AuthErrors.USERNAME_TOO_SHORT))
+        }
+
+        if (username.length > 20) {
+            return Result.failure(IllegalArgumentException(AuthErrors.USERNAME_TOO_LONG))
         }
 
         return authRepository.register(email, password, username)

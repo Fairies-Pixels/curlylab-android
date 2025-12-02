@@ -5,22 +5,22 @@ class ValidatePasswordUseCase {
         return when {
             password.length < 6 -> ValidationResult(
                 successful = false,
-                errorMessage = "Пароль должен содержать минимум 6 символов"
+                errorMessage = AuthErrors.PASSWORD_TOO_SHORT
             )
 
             password.length > 20 -> ValidationResult(
                 successful = false,
-                errorMessage = "Пароль должен содержать не более 20 символов"
+                errorMessage = AuthErrors.PASSWORD_TOO_LONG
             )
 
             containsNonLatinLetters(password) -> ValidationResult(
                 successful = false,
-                errorMessage = "Пароль может содержать любые символы, но буквы только латинские"
+                errorMessage = AuthErrors.PASSWORD_NON_LATIN
             )
 
             password != confirmPassword -> ValidationResult(
                 successful = false,
-                errorMessage = "Пароли не совпадают"
+                errorMessage = AuthErrors.PASSWORDS_DONT_MATCH
             )
 
             else -> ValidationResult(successful = true)
@@ -31,17 +31,17 @@ class ValidatePasswordUseCase {
         return when {
             password.length < 6 -> ValidationResult(
                 successful = false,
-                errorMessage = "Пароль должен содержать минимум 6 символов"
+                errorMessage = AuthErrors.PASSWORD_TOO_SHORT
             )
 
             password.length > 20 -> ValidationResult(
                 successful = false,
-                errorMessage = "Пароль должен содержать не более 20 символов"
+                errorMessage = AuthErrors.PASSWORD_TOO_LONG
             )
 
             containsNonLatinLetters(password) -> ValidationResult(
                 successful = false,
-                errorMessage = "Пароль может содержать любые символы, но буквы только латинские"
+                errorMessage = AuthErrors.PASSWORD_NON_LATIN
             )
 
             else -> ValidationResult(successful = true)

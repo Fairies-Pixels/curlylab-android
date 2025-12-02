@@ -3,6 +3,7 @@ package fairies.pixels.curlyLabAndroid.presentation.auth.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fairies.pixels.curlyLabAndroid.domain.usecase.auth.AuthErrors
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.SignUpUseCase
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.ValidatePasswordUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,6 +56,16 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun signUp(onSuccess: () -> Unit) {
+        if (username.value.length > 20) {
+            _errorMessage.value = AuthErrors.USERNAME_TOO_LONG
+            return
+        }
+
+        if (username.value.length < 2) {
+            _errorMessage.value = AuthErrors.USERNAME_TOO_SHORT
+            return
+        }
+
         val passwordValidation = validatePasswordUseCase(password.value, confirmPassword.value)
         if (!passwordValidation.successful) {
             _errorMessage.value = passwordValidation.errorMessage
@@ -62,7 +73,7 @@ class SignUpViewModel @Inject constructor(
         }
 
         if (email.value.isEmpty() || username.value.isEmpty()) {
-            _errorMessage.value = "Please fill in all fields"
+            _errorMessage.value = AuthErrors.FIELDS_REQUIRED
             return
         }
 
@@ -75,7 +86,8 @@ class SignUpViewModel @Inject constructor(
                 _errorMessage.value = null
                 onSuccess()
             } else {
-                _errorMessage.value = result.exceptionOrNull()?.message ?: "Registration failed"
+                _errorMessage.value =
+                    result.exceptionOrNull()?.message ?: AuthErrors.REGISTRATION_FAILED
             }
         }
     }

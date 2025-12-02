@@ -9,7 +9,7 @@ class GoogleSignInUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(idToken: String): Result<AuthResponse> {
         if (idToken.isBlank()) {
-            return Result.failure(IllegalArgumentException("Google token is empty"))
+            return Result.failure(IllegalArgumentException(AuthErrors.GOOGLE_TOKEN_EMPTY))
         }
 
         return authRepository.loginWithGoogle(idToken)
