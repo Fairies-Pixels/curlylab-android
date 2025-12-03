@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -117,8 +118,11 @@ fun ProfileScreen(
 
                         Text(
                             text = userName ?: "Имя",
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = LightPink
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = LightPink,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
                         )
 
                         Box {
