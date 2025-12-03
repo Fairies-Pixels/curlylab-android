@@ -17,6 +17,15 @@ android {
     namespace = "fairies.pixels.curlyLabAndroid"
     compileSdk = 36
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     defaultConfig {
         buildConfigField(
             "String",
@@ -33,6 +42,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -87,7 +99,6 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.runtime.android)
     implementation(libs.androidx.compose.compiler)
-    implementation(libs.coil.compose)
     implementation(libs.accompanist.swiperefresh)
 
     testImplementation(libs.junit)
