@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.HairTypeRequest
+import fairies.pixels.curlyLabAndroid.presentation.hairTyping.PorosityTypes
 
 
 @HiltViewModel
@@ -55,7 +56,13 @@ class HairAnalysisViewModel @Inject constructor(
             try {
                 val userId = authDataStore.getUserId() ?: return@launch
 
-                val porosityCode = result.value?.uppercase() ?: return@launch
+                val porosityResult = result.value?.uppercase() ?: return@launch
+                val porosityCode = when(porosityResult) {
+                    "Высокая пористость" -> PorosityTypes.POROUS.dbCode
+                    "Средняя пористость" -> PorosityTypes.SEMI_POROUS.dbCode
+                    "Низкая пористость" -> PorosityTypes.NON_POROUS.dbCode
+                    else -> null
+                }
 
                 hairTypesRepository.updateHairType(
                     userId,
