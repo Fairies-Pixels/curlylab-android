@@ -16,6 +16,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +34,7 @@ import fairies.pixels.curlyLabAndroid.presentation.theme.LightBeige
 @Composable
 fun DictionaryScreen(viewModel: DictionaryViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
+    val words by viewModel.words.collectAsState()
 
     LaunchedEffect(searchQuery) {
         viewModel.filterWords(searchQuery)
@@ -66,7 +68,7 @@ fun DictionaryScreen(viewModel: DictionaryViewModel = viewModel()) {
         )
 
         LazyColumn {
-            items(viewModel.words.value) { word ->
+            items(words) { word ->
                 WordItem(word)
             }
         }
