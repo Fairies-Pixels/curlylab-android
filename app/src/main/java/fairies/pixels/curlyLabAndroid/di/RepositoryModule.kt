@@ -1,5 +1,4 @@
 package fairies.pixels.curlyLabAndroid.di
-
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

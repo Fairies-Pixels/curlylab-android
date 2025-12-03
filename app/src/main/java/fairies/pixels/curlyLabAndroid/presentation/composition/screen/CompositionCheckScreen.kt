@@ -71,17 +71,43 @@ fun CompositionCheckScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = inputText,
-                onValueChange = { viewModel.onInputTextChange(it) },
-                label = { Text("Введите или вставьте состав", fontFamily = Golos) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                shape = RoundedCornerShape(12.dp),
-                maxLines = 10
-            )
+            val maxLength = 2000
+            val isLimitExceeded = inputText.length > maxLength
 
+            Column {
+                OutlinedTextField(
+                    value = inputText,
+                    onValueChange = { text ->
+                        viewModel.onInputTextChange(text)
+                    },
+                    label = { Text("Введите или вставьте состав", fontFamily = Golos) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    maxLines = 10,
+                    isError = isLimitExceeded
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = "${inputText.length} / $maxLength",
+                        color = if (isLimitExceeded) Color.Red else Color.Gray,
+                        fontFamily = Golos
+                    )
+                }
+
+                if (isLimitExceeded) {
+                    Text(
+                        text = "Превышен лимит в 2000 символов",
+                        color = Color.Red,
+                        fontFamily = Golos
+                    )
+                }
+            }
             imageUri?.let {
                 Spacer(modifier = Modifier.height(12.dp))
                 Image(
