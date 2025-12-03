@@ -201,12 +201,12 @@ fun ProfileScreen(
                     ) {
                         HairTypeCard(
                             R.drawable.porosity,
-                            hairType?.let { PorosityTypes.getResultNameByDbCode(it.porosity) }
+                            hairType?.porosity?.let { PorosityTypes.getResultNameByDbCode(it) }
                                 ?: "Пористость"
                         )
                         HairTypeCard(
                             R.drawable.thin,
-                            hairType?.let { ThicknessTypes.getResultNameByDbCode(it.thickness) }
+                            hairType?.thickness?.let { ThicknessTypes.getResultNameByDbCode(it) }
                                 ?: "Толщина"
                         )
                         HairTypeCard(
