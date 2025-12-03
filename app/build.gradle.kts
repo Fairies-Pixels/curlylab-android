@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.compose.foundation.layout)
     kapt(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.coil.compose)
