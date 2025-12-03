@@ -26,6 +26,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.viewmodel.HairAnalysisViewModel
 import fairies.pixels.curlyLabAndroid.presentation.theme.*
+import kotlinx.coroutines.launch
 
 import java.io.InputStream
 
@@ -68,11 +69,14 @@ fun HairAnalysisScreen(
     }
 
     val bottomSheetState = rememberBottomSheetScaffoldState()
+    val scope = rememberCoroutineScope()
 
     // Автоматическое открытие BottomSheet
     LaunchedEffect(result, error, isLoading) {
         if (!isLoading && (!result.isNullOrEmpty() || error != null)) {
-            bottomSheetState.bottomSheetState.expand()
+            scope.launch {
+                bottomSheetState.bottomSheetState.expand()
+            }
         }
     }
     BottomSheetScaffold(
