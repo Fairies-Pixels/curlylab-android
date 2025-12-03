@@ -29,8 +29,9 @@ class AnalysisRepositoryImpl @Inject constructor(
 
             return@withContext try {
                 val json = JSONObject(raw)
-                val porosity = json.optString("porosity")
+                val result = json.optJSONObject("result")
 
+                val porosity = result?.optString("porosity") ?: ""
                 when (porosity.uppercase()) {
                     "HIGH" -> "Высокая пористость"
                     "MEDIUM" -> "Средняя пористость"
