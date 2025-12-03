@@ -2,6 +2,7 @@ package fairies.pixels.curlyLabAndroid.data.remote.api
 
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.GoogleRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.LoginRequest
+import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.LogoutRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.RegisterRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.FavoriteRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.ReviewRequest
@@ -142,4 +143,7 @@ interface ApiService {
 
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
+
+    @POST("auth/logout")
+    suspend fun logout(@Body request: LogoutRequest): Response<Unit>
 }

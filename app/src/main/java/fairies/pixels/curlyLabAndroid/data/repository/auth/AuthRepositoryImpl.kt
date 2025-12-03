@@ -4,6 +4,7 @@ import fairies.pixels.curlyLabAndroid.data.local.AuthDataStore
 import fairies.pixels.curlyLabAndroid.data.remote.api.ApiService
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.GoogleRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.LoginRequest
+import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.LogoutRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.RegisterRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.auth.AuthResponse
 import fairies.pixels.curlyLabAndroid.domain.repository.auth.AuthRepository
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
-    private val authApiService: ApiService,
+    private val apiService: ApiService,
     private val authDataStore: AuthDataStore
 ) : AuthRepository {
 
@@ -22,7 +23,7 @@ class AuthRepositoryImpl @Inject constructor(
         username: String
     ): Result<AuthResponse> {
         return try {
-            val response = authApiService.register(RegisterRequest(email, password, username))
+            val response = apiService.register(RegisterRequest(email, password, username))
             if (response.isSuccessful) {
                 val authResponse =
                     response.body() ?: return Result.failure(Exception("Empty response body"))
@@ -50,7 +51,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun login(email: String, password: String): Result<AuthResponse> {
         return try {
-            val response = authApiService.login(LoginRequest(email, password))
+            val response = apiService.login(LoginRequest(email, password))
             if (response.isSuccessful) {
                 val authResponse =
                     response.body() ?: return Result.failure(Exception("Empty response body"))
@@ -78,7 +79,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun loginWithGoogle(idToken: String): Result<AuthResponse> {
         return try {
-            val response = authApiService.googleLogin(GoogleRequest(idToken))
+            val response = apiService.googleLogin(GoogleRequest(idToken))
             if (response.isSuccessful) {
                 val authResponse =
                     response.body() ?: return Result.failure(Exception("Empty response body"))
@@ -109,7 +110,27 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logout() {
-        authDataStore.clearAuthData()
+        try {
+            val refreshToken = authDataStore.getRefreshTokenBlocking()
+
+            refreshToken?.let {
+                apiService.logout(LogoutRequest(it))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            authDataStore.clearAuthData()
+        }
+    }
+
+    override suspend fun deleteAccount(userId: String) {
+        return try {
+            logout()
+            apiService.deleteUser(userId)
+            authDataStore.clearAuthData()
+        } catch (e: Exception) {
+            throw Exception("Ошибка при удалении аккаунта: ${e.message}")
+        }
     }
 
     override suspend fun getAccessToken(): String? {

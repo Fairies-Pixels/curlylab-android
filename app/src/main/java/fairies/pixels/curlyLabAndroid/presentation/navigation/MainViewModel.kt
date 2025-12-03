@@ -3,7 +3,6 @@ package fairies.pixels.curlyLabAndroid.presentation.navigation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fairies.pixels.curlyLabAndroid.data.oauth.GoogleAuthUiClient
 import fairies.pixels.curlyLabAndroid.domain.repository.auth.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,8 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-    val googleAuthUiClient: GoogleAuthUiClient
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _isLoggedIn = MutableStateFlow<Boolean?>(null)
@@ -41,10 +39,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun logout() {
-        viewModelScope.launch {
-            googleAuthUiClient.signOut()
-            authRepository.logout()
-            _isLoggedIn.value = false
-        }
+        _isLoggedIn.value = false
     }
 }
