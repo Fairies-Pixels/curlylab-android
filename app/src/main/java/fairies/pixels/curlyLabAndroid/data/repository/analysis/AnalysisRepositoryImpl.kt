@@ -8,6 +8,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
+import org.json.JSONObject
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -23,10 +24,28 @@ class AnalysisRepositoryImpl @Inject constructor(
         val response: Response<ResponseBody> = apiService.analyzeHair(part)
 
         if (response.isSuccessful) {
-            return@withContext response.body()?.string() ?: ""
+
+            val raw = response.body()?.string() ?: ""
+
+            return@withContext try {
+                val json = JSONObject(raw)
+                val porosity = json.optString("porosity")
+
+                when (porosity.uppercase()) {
+                    "HIGH" -> "Высокая пористость"
+                    "MEDIUM" -> "Средняя пористость"
+                    "LOW" -> "Низкая пористость"
+                    else -> porosity
+                }
+
+            } catch (e: Exception) {
+                raw
+            }
+
         } else {
             val error = response.errorBody()?.string()
             throw Exception("Ошибка анализа: $error")
         }
+
     }
 }
