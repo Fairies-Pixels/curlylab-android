@@ -69,9 +69,8 @@ fun HairAnalysisScreen(
 
     val bottomSheetState = rememberBottomSheetScaffoldState()
 
-    // Автоматическое открытие BottomSheet
-    LaunchedEffect(result, error, isLoading) {
-        if (!isLoading && (!result.isNullOrEmpty() || error != null)) {
+    LaunchedEffect(result, error) {
+        if (!result.isNullOrEmpty() || error != null) {
             bottomSheetState.bottomSheetState.expand()
         }
     }
