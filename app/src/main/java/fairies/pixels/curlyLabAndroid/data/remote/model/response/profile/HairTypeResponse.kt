@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class HairTypeResponse(
-    val porosity: String,
-    val isColored: Boolean,
-    val thickness: String
+    val porosity: String?,
+    val isColored: Boolean?,
+    val thickness: String?
 )
