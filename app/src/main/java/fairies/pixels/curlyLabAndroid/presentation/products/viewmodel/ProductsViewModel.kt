@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fairies.pixels.curlyLabAndroid.data.local.AuthDataStore
-import fairies.pixels.curlyLabAndroid.data.remote.model.request.products.ReviewRequest
 import fairies.pixels.curlyLabAndroid.domain.model.products.Favorite
 import fairies.pixels.curlyLabAndroid.domain.model.products.Product
 import fairies.pixels.curlyLabAndroid.domain.model.products.Review
@@ -140,7 +139,8 @@ class ProductsViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                _reviews.value = getReviewsUseCase(productId)
+                val reviews = getReviewsUseCase(productId)
+                _reviews.value = reviews.sortedByDescending { it.createdAt }
                 _error.value = null
             } catch (e: Exception) {
                 _error.value = "Ошибка загрузки отзывов: ${e.message}"
@@ -202,9 +202,22 @@ class ProductsViewModel @Inject constructor(
             try {
                 val userId = _userId.value
                 if (userId != null) {
-                    updateReviewUseCase(userId, productId, reviewId, mark, reviewText)
-                    loadReviews(productId)
-                    _error.value = null
+                    val response =
+                        updateReviewUseCase(userId, productId, reviewId, mark, reviewText)
+                    if (response.isSuccessful) {
+                        loadReviews(productId)
+                        _error.value = null
+                    } else {
+                        when (response.code()) {
+                            403 -> _error.value =
+                                "Нельзя редактировать отзыв спустя 24 часа после создания"
+
+                            404 -> _error.value = "Отзыв не найден"
+                            400 -> _error.value = "Некорректные данные отзыва"
+                            else -> _error.value =
+                                "Ошибка при обновлении отзыва: ${response.code()}"
+                        }
+                    }
                 } else {
                     _error.value = "Пользователь не авторизован"
                 }
