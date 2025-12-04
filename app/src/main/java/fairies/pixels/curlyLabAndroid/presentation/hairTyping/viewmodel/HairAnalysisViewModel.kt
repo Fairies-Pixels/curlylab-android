@@ -58,9 +58,9 @@ class HairAnalysisViewModel @Inject constructor(
 
                 val porosityResult = result.value?.uppercase() ?: return@launch
                 val porosityCode = when(porosityResult) {
-                    "ВЫСОКАЯ ПОРИСТОСТЬ" -> PorosityTypes.POROUS.dbCode
-                    "СРЕДНЯЯ ПОРИСТОСТЬ" -> PorosityTypes.SEMI_POROUS.dbCode
-                    "НИЗКАЯ ПОРИСТОСТЬ" -> PorosityTypes.NON_POROUS.dbCode
+                    "Высокая пористость" -> PorosityTypes.POROUS.dbCode
+                    "Средняя пористость" -> PorosityTypes.SEMI_POROUS.dbCode
+                    "Низкая пористость" -> PorosityTypes.NON_POROUS.dbCode
                     else -> null
                 }
 

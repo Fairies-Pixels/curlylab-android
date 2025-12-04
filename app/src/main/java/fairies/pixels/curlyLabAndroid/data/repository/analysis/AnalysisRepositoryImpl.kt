@@ -21,35 +21,30 @@ class AnalysisRepositoryImpl @Inject constructor(
         val body = imageBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
         val part = MultipartBody.Part.createFormData("file", "photo.jpg", body)
 
-        // Отправляем фото на API
         val response: Response<ResponseBody> = apiService.analyzeHair(part)
 
-        // Читаем тело ответа
-        val raw = response.body()?.byteStream()?.bufferedReader()?.readText() ?: ""
-        println("RAW_RESPONSE = $raw")
+        if (response.isSuccessful) {
 
-        if (!response.isSuccessful) {
-            throw Exception("Ошибка анализа: ${response.errorBody()?.string()}")
-        }
+            val raw = response.body()?.string() ?: ""
 
-        return@withContext try {
-            val json = JSONObject(raw)
-            val resultObj = json.optJSONObject("result")
-            val porosity = resultObj?.optString("porosity")?.uppercase()
+            return@withContext try {
+                val json = JSONObject(raw)
+                val porosity = json.optString("porosity")
 
-            println("PARSED POROSITY = $porosity")
+                when (porosity.uppercase()) {
+                    "HIGH" -> "Высокая пористость"
+                    "MEDIUM" -> "Средняя пористость"
+                    "LOW" -> "Низкая пористость"
+                    else -> porosity
+                }
 
-            // Возвращаем удобочитаемый результат для UI или raw текст, если не удалось распарсить
-            when (porosity) {
-                "HIGH" -> "Высокая пористость"
-                "MEDIUM" -> "Средняя пористость"
-                "LOW" -> "Низкая пористость"
-                else -> raw.ifEmpty { "Результат недоступен" }
+            } catch (e: Exception) {
+                raw
             }
 
-        } catch (e: Exception) {
-            println("JSON PARSE ERROR: ${e.message}")
-            raw.ifEmpty { "Результат недоступен" }
+        } else {
+            val error = response.errorBody()?.string()
+            throw Exception("Ошибка анализа: $error")
         }
 
     }
