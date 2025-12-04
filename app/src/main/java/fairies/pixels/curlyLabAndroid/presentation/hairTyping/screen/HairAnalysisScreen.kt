@@ -1,11 +1,12 @@
 package fairies.pixels.curlyLabAndroid.presentation.hairTyping.screen
 
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,9 +22,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.viewmodel.HairAnalysisViewModel
 import fairies.pixels.curlyLabAndroid.presentation.theme.*
+import kotlinx.coroutines.launch
+
 import java.io.InputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,6 +41,7 @@ fun HairAnalysisScreen(
     val result by viewModel.result.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val saved by viewModel.saved.collectAsState()
 
     val UriSaver: Saver<Uri?, String> = Saver(
         save = { it?.toString() ?: "" },
@@ -64,27 +69,30 @@ fun HairAnalysisScreen(
     }
 
     val bottomSheetState = rememberBottomSheetScaffoldState()
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(result, error) {
-        if (!result.isNullOrEmpty() || error != null) {
-            bottomSheetState.bottomSheetState.expand()
+    // Автоматическое открытие BottomSheet
+    LaunchedEffect(result, error, isLoading) {
+        if (!isLoading && (!result.isNullOrEmpty() || error != null)) {
+            scope.launch {
+                bottomSheetState.bottomSheetState.expand()
+            }
         }
     }
-
     BottomSheetScaffold(
+        scaffoldState = bottomSheetState,
         sheetPeekHeight = 48.dp,
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        sheetContainerColor = Color.White,
+        sheetContainerColor = BrightPink,
         sheetDragHandle = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(BrightPink)
                     .padding(vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "≋ꕤ≋𐤀≋ꕤ≋𐤀≋ꕤ≋𐤀≋ꕤ≋𐤀≋ꕤ",
+                    text = "≋ꕤ≋𐤀≋ꕤ≋𐤀≋ꕤ",
                     color = LightBeige,
                     style = MaterialTheme.typography.displayLarge.copy(
                         fontFamily = Golos,
@@ -97,20 +105,44 @@ fun HairAnalysisScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(BrightPink)
-                    .padding(16.dp)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = when {
-                        isLoading -> "Ожидаем анализ…"
-                        error != null -> "Ошибка: $error"
-                        !result.isNullOrEmpty() -> "Тип волос: ${result!!.uppercase()}"
-                        else -> "Загрузите фото"
-                    },
-                    fontFamily = Golos,
-                    fontSize = 20.sp,
-                    color = LightBeige
-                )
+                if (isLoading) {
+                    Text("Ожидаем анализ…", fontFamily = Golos, fontSize = 20.sp, color = LightBeige)
+                } else if (error != null) {
+                    Text("Ошибка: $error", fontFamily = Golos, fontSize = 20.sp, color = LightBeige)
+                } else if (!result.isNullOrEmpty()) {
+                    Text(
+                        "Тип волос: ${result!!.uppercase()}",
+                        fontFamily = Golos,
+                        fontSize = 20.sp,
+                        color = LightBeige
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        OutlinedButton(
+                            onClick = { /* Пока не сохраняем */ },
+                            border = BorderStroke(2.dp, LightBeige)
+                        ) {
+                            Text("Пока не сохранять", color = LightBeige)
+                        }
+
+                        Button(
+                            onClick = { viewModel.saveResult() },
+                            colors = ButtonDefaults.buttonColors(containerColor = LightBeige)
+                        ) {
+                            Text("Сохранить", color = BrightPink)
+                        }
+                    }
+                } else {
+                    Text("Загрузите фото", fontFamily = Golos, fontSize = 20.sp, color = LightBeige)
+                }
             }
         }
     ) { padding ->
@@ -149,7 +181,6 @@ fun HairAnalysisScreen(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-
                 selectedImageUri?.let { uri ->
                     AsyncImage(
                         model = uri,
@@ -175,6 +206,14 @@ fun HairAnalysisScreen(
                     Text("Загрузить фото", color = Color.White, fontFamily = Golos)
                 }
             }
+        }
+    }
+
+    LaunchedEffect(saved) {
+        when (saved) {
+            true -> Toast.makeText(context, "Результат успешно сохранен", Toast.LENGTH_SHORT).show()
+            false -> Toast.makeText(context, "Ошибка, не удалось сохранить результат", Toast.LENGTH_SHORT).show()
+            null-> {}
         }
     }
 }
