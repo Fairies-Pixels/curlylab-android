@@ -18,7 +18,6 @@ class AnalysisRepositoryImpl @Inject constructor(
 
     override suspend fun analyzePhoto(imageBytes: ByteArray): String = withContext(Dispatchers.IO) {
 
-        // Создаём multipart тело запроса
         val body = imageBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
         val part = MultipartBody.Part.createFormData("file", "photo.jpg", body)
 
@@ -52,5 +51,6 @@ class AnalysisRepositoryImpl @Inject constructor(
             println("JSON PARSE ERROR: ${e.message}")
             raw.ifEmpty { "Результат недоступен" }
         }
+
     }
 }
