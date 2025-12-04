@@ -25,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.viewmodel.HairAnalysisViewModel
+import fairies.pixels.curlyLabAndroid.presentation.navigation.Screen
 import fairies.pixels.curlyLabAndroid.presentation.theme.*
 
 import java.io.InputStream
@@ -207,7 +208,11 @@ fun HairAnalysisScreen(
 
     LaunchedEffect(saved) {
         when (saved) {
-            true -> Toast.makeText(context, "Результат успешно сохранен", Toast.LENGTH_SHORT).show()
+            true -> {
+                Toast.makeText(context, "Результат успешно сохранен", Toast.LENGTH_SHORT).show()
+                navController.navigate(Screen.Main.route)
+                navController.navigate(Screen.HairTyping.route)
+            }
             false -> Toast.makeText(context, "Ошибка, не удалось сохранить результат", Toast.LENGTH_SHORT).show()
             null-> {}
         }
