@@ -26,10 +26,10 @@ class AuthRepositoryImpl @Inject constructor(
             val response = apiService.register(RegisterRequest(email, password, username))
             if (response.isSuccessful) {
                 val authResponse =
-                    response.body() ?: return Result.failure(Exception("Empty response body"))
+                    response.body() ?: return Result.failure(Exception("Пустой ответ от сервера"))
 
                 val userId = JwtDecoder.decodeUserId(authResponse.access)
-                    ?: return Result.failure(Exception("Failed to decode user ID from token"))
+                    ?: return Result.failure(Exception("Не удалось расшифровать ID пользователя из токена"))
 
                 authDataStore.saveAuthData(
                     isLoggedIn = true,
@@ -41,11 +41,11 @@ class AuthRepositoryImpl @Inject constructor(
                 )
                 Result.success(authResponse)
             } else {
-                val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                Result.failure(Exception("Registration failed: ${response.code()} - $errorBody"))
+                val errorBody = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                Result.failure(Exception("Ошибка регистрации: ${response.code()} - $errorBody"))
             }
         } catch (e: Exception) {
-            Result.failure(Exception("Network error: ${e.message}"))
+            Result.failure(Exception("Ошибка сети: ${e.message}"))
         }
     }
 
@@ -54,10 +54,10 @@ class AuthRepositoryImpl @Inject constructor(
             val response = apiService.login(LoginRequest(email, password))
             if (response.isSuccessful) {
                 val authResponse =
-                    response.body() ?: return Result.failure(Exception("Empty response body"))
+                    response.body() ?: return Result.failure(Exception("Пустой ответ от сервера"))
 
                 val userId = JwtDecoder.decodeUserId(authResponse.access)
-                    ?: return Result.failure(Exception("Failed to decode user ID from token"))
+                    ?: return Result.failure(Exception("Не удалось расшифровать ID пользователя из токена"))
 
                 authDataStore.saveAuthData(
                     isLoggedIn = true,
@@ -69,11 +69,11 @@ class AuthRepositoryImpl @Inject constructor(
                 )
                 Result.success(authResponse)
             } else {
-                val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                Result.failure(Exception("Login failed: ${response.code()} - $errorBody"))
+                val errorBody = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                Result.failure(Exception("Ошибка входа: ${response.code()} - $errorBody"))
             }
         } catch (e: Exception) {
-            Result.failure(Exception("Network error: ${e.message}"))
+            Result.failure(Exception("Ошибка сети: ${e.message}"))
         }
     }
 
@@ -82,10 +82,10 @@ class AuthRepositoryImpl @Inject constructor(
             val response = apiService.googleLogin(GoogleRequest(idToken))
             if (response.isSuccessful) {
                 val authResponse =
-                    response.body() ?: return Result.failure(Exception("Empty response body"))
+                    response.body() ?: return Result.failure(Exception("Пустой ответ от сервера"))
 
                 val userId = JwtDecoder.decodeUserId(authResponse.access)
-                    ?: return Result.failure(Exception("Failed to decode user ID from token"))
+                    ?: return Result.failure(Exception("Не удалось расшифровать ID пользователя из токена"))
 
                 authDataStore.saveAuthData(
                     isLoggedIn = true,
@@ -97,11 +97,11 @@ class AuthRepositoryImpl @Inject constructor(
                 )
                 Result.success(authResponse)
             } else {
-                val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                Result.failure(Exception("Google login failed: ${response.code()} - $errorBody"))
+                val errorBody = response.errorBody()?.string() ?: "Неизвестная ошибка"
+                Result.failure(Exception("Ошибка входа через Google: ${response.code()} - $errorBody"))
             }
         } catch (e: Exception) {
-            Result.failure(Exception("Network error: ${e.message}"))
+            Result.failure(Exception("Ошибка сети: ${e.message}"))
         }
     }
 
@@ -112,7 +112,6 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun logout() {
         try {
             val refreshToken = authDataStore.getRefreshTokenBlocking()
-
             refreshToken?.let {
                 apiService.logout(LogoutRequest(it))
             }

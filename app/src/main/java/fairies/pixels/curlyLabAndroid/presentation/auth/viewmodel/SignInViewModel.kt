@@ -9,6 +9,7 @@ import fairies.pixels.curlyLabAndroid.domain.usecase.auth.SignInUseCase
 import fairies.pixels.curlyLabAndroid.domain.usecase.auth.ValidatePasswordUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,8 +26,11 @@ class SignInViewModel @Inject constructor(
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
+    private val _isEmailLoading = MutableStateFlow(false)
+    val isEmailLoading: StateFlow<Boolean> = _isEmailLoading.asStateFlow()
+
+    private val _isGoogleLoading = MutableStateFlow(false)
+    val isGoogleLoading: StateFlow<Boolean> = _isGoogleLoading.asStateFlow()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
@@ -63,10 +67,10 @@ class SignInViewModel @Inject constructor(
             return
         }
 
-        _isLoading.value = true
+        _isEmailLoading.value = true
         viewModelScope.launch {
             val result = signInUseCase(email.value, password.value)
-            _isLoading.value = false
+            _isEmailLoading.value = false
 
             if (result.isSuccess) {
                 _errorMessage.value = null
@@ -78,22 +82,23 @@ class SignInViewModel @Inject constructor(
     }
 
     fun signInWithGoogle(idToken: String, onSuccess: () -> Unit) {
-        _isLoading.value = true
+        _isGoogleLoading.value = true
         _errorMessage.value = null
 
         viewModelScope.launch {
             try {
                 val result = googleSignInUseCase(idToken)
-                _isLoading.value = false
+                _isGoogleLoading.value = false
 
                 if (result.isSuccess) {
                     _errorMessage.value = null
                     onSuccess()
                 } else {
-                    _errorMessage.value = result.exceptionOrNull()?.message ?: AuthErrors.GOOGLE_LOGIN_FAILED
+                    _errorMessage.value =
+                        result.exceptionOrNull()?.message ?: AuthErrors.GOOGLE_LOGIN_FAILED
                 }
             } catch (e: Exception) {
-                _isLoading.value = false
+                _isGoogleLoading.value = false
                 _errorMessage.value = "${AuthErrors.NETWORK_ERROR}: ${e.message}"
             }
         }

@@ -63,7 +63,8 @@ fun SignInScreen(
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val isEmailLoading by viewModel.isEmailLoading.collectAsState()
+    val isGoogleLoading by viewModel.isGoogleLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val passwordError by viewModel.passwordError.collectAsState()
 
@@ -185,24 +186,16 @@ fun SignInScreen(
                         )
                     }
 
-                    Text(
-                        text = "Забыли пароль?",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = DarkGreen,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .clickable { onNavigateToResetPassword() }
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     Button(
                         onClick = { viewModel.signIn(onSignInSuccess) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
-                        enabled = !isLoading && email.isNotEmpty() && password.isNotEmpty() && passwordError == null,
+                        enabled = !isEmailLoading && !isGoogleLoading &&
+                                email.isNotEmpty() && password.isNotEmpty() &&
+                                passwordError == null,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = LightGreen,
                             contentColor = Color.White,
@@ -211,10 +204,11 @@ fun SignInScreen(
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        if (isLoading) {
+                        if (isEmailLoading) {
                             CircularProgressIndicator(
                                 color = Color.White,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
                             )
                         } else {
                             Text(
@@ -246,14 +240,18 @@ fun SignInScreen(
                     }
 
                     Button(
-                        onClick = { onGoogleSignIn() },
+                        onClick = {
+                            onGoogleSignIn()
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
-                        enabled = !isLoading,
+                        enabled = !isEmailLoading && !isGoogleLoading,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
-                            contentColor = DarkGreen
+                            contentColor = DarkGreen,
+                            disabledContainerColor = Color.White.copy(alpha = 0.7f),
+                            disabledContentColor = DarkGreen.copy(alpha = 0.5f)
                         ),
                         border = ButtonDefaults.outlinedButtonBorder.copy(
                             brush = Brush.linearGradient(
@@ -262,10 +260,11 @@ fun SignInScreen(
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        if (isLoading) {
+                        if (isGoogleLoading) {
                             CircularProgressIndicator(
                                 color = DarkGreen,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
                             )
                         } else {
                             Row(

@@ -1,31 +1,47 @@
 package fairies.pixels.curlyLabAndroid.presentation.composition.screen
 
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
-import fairies.pixels.curlyLabAndroid.presentation.theme.LightBeige
-import fairies.pixels.curlyLabAndroid.presentation.theme.DarkGreen
-import fairies.pixels.curlyLabAndroid.presentation.theme.BrightPink
-import fairies.pixels.curlyLabAndroid.presentation.theme.Golos
-import fairies.pixels.curlyLabAndroid.presentation.composition.screen.viewmodel.CompositionViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import fairies.pixels.curlyLabAndroid.presentation.composition.screen.viewmodel.CompositionViewModel
+import fairies.pixels.curlyLabAndroid.presentation.theme.BrightPink
+import fairies.pixels.curlyLabAndroid.presentation.theme.DarkGreen
+import fairies.pixels.curlyLabAndroid.presentation.theme.Golos
+import fairies.pixels.curlyLabAndroid.presentation.theme.LightBeige
+import fairies.pixels.curlyLabAndroid.presentation.theme.LightBeige02
 
 @Composable
 fun CompositionCheckScreen(navController: NavController) {
@@ -77,16 +93,31 @@ fun CompositionCheckScreen(navController: NavController) {
             Column {
                 OutlinedTextField(
                     value = inputText,
-                    onValueChange = { text ->
-                        viewModel.onInputTextChange(text)
+                    onValueChange = { viewModel.onInputTextChange(it) },
+                    label = {
+                        Text(
+                            "Введите или вставьте состав",
+                            fontFamily = Golos,
+                            color = DarkGreen
+                        )
                     },
-                    label = { Text("Введите или вставьте состав", fontFamily = Golos) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp),
                     shape = RoundedCornerShape(12.dp),
                     maxLines = 10,
-                    isError = isLimitExceeded
+                    isError = isLimitExceeded,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkGreen,
+                        unfocusedBorderColor = DarkGreen.copy(alpha = 0.5f),
+                        focusedLabelColor = DarkGreen,
+                        unfocusedLabelColor = DarkGreen.copy(alpha = 0.7f),
+                        cursorColor = DarkGreen,
+                        focusedContainerColor = LightBeige02,
+                        unfocusedContainerColor = LightBeige02,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
                 )
 
                 Row(
@@ -108,6 +139,7 @@ fun CompositionCheckScreen(navController: NavController) {
                     )
                 }
             }
+
             imageUri?.let {
                 Spacer(modifier = Modifier.height(12.dp))
                 Image(
@@ -138,7 +170,7 @@ fun CompositionCheckScreen(navController: NavController) {
                 onClick = { imagePickerLauncher.launch("image/*") },
                 colors = ButtonDefaults.buttonColors(containerColor = BrightPink),
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).height(56.dp)
             ) {
                 Text("Загрузить фото", color = Color.White, fontFamily = Golos)
             }
@@ -147,7 +179,7 @@ fun CompositionCheckScreen(navController: NavController) {
                 onClick = { viewModel.analyze(context, imageUri) },
                 colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).height(56.dp)
             ) {
                 Text("Проверить", color = Color.White, fontFamily = Golos)
             }
