@@ -18,16 +18,12 @@ class AnalysisRepositoryImpl @Inject constructor(
 
     override suspend fun analyzePhoto(imageBytes: ByteArray): String = withContext(Dispatchers.IO) {
 
-        // Создаём multipart тело запроса
         val body = imageBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
         val part = MultipartBody.Part.createFormData("file", "photo.jpg", body)
 
-        // Отправляем фото на API
         val response: Response<ResponseBody> = apiService.analyzeHair(part)
 
-        // Читаем тело ответа
         val raw = response.body()?.byteStream()?.bufferedReader()?.readText() ?: ""
-        println("RAW_RESPONSE = $raw")
 
         if (!response.isSuccessful) {
             throw Exception("Ошибка анализа: ${response.errorBody()?.string()}")
@@ -38,9 +34,6 @@ class AnalysisRepositoryImpl @Inject constructor(
             val resultObj = json.optJSONObject("result")
             val porosity = resultObj?.optString("porosity")?.uppercase()
 
-            println("PARSED POROSITY = $porosity")
-
-            // Возвращаем удобочитаемый результат для UI или raw текст, если не удалось распарсить
             when (porosity) {
                 "HIGH" -> "Высокая пористость"
                 "MEDIUM" -> "Средняя пористость"
@@ -49,7 +42,6 @@ class AnalysisRepositoryImpl @Inject constructor(
             }
 
         } catch (e: Exception) {
-            println("JSON PARSE ERROR: ${e.message}")
             raw.ifEmpty { "Результат недоступен" }
         }
     }
