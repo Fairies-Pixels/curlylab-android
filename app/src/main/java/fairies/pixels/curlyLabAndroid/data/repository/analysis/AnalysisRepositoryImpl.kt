@@ -18,34 +18,39 @@ class AnalysisRepositoryImpl @Inject constructor(
 
     override suspend fun analyzePhoto(imageBytes: ByteArray): String = withContext(Dispatchers.IO) {
 
+        // Создаём multipart тело запроса
         val body = imageBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
         val part = MultipartBody.Part.createFormData("file", "photo.jpg", body)
 
+        // Отправляем фото на API
         val response: Response<ResponseBody> = apiService.analyzeHair(part)
 
-        if (response.isSuccessful) {
+        // Читаем тело ответа
+        val raw = response.body()?.byteStream()?.bufferedReader()?.readText() ?: ""
+        println("RAW_RESPONSE = $raw")
 
-            val raw = response.body()?.string() ?: ""
-
-            return@withContext try {
-                val json = JSONObject(raw)
-                val porosity = json.optString("porosity")
-
-                when (porosity.uppercase()) {
-                    "HIGH" -> "Высокая пористость"
-                    "MEDIUM" -> "Средняя пористость"
-                    "LOW" -> "Низкая пористость"
-                    else -> porosity
-                }
-
-            } catch (e: Exception) {
-                raw
-            }
-
-        } else {
-            val error = response.errorBody()?.string()
-            throw Exception("Ошибка анализа: $error")
+        if (!response.isSuccessful) {
+            throw Exception("Ошибка анализа: ${response.errorBody()?.string()}")
         }
 
+        return@withContext try {
+            val json = JSONObject(raw)
+            val resultObj = json.optJSONObject("result")
+            val porosity = resultObj?.optString("porosity")?.uppercase()
+
+            println("PARSED POROSITY = $porosity")
+
+            // Возвращаем удобочитаемый результат для UI или raw текст, если не удалось распарсить
+            when (porosity) {
+                "HIGH" -> "Высокая пористость"
+                "MEDIUM" -> "Средняя пористость"
+                "LOW" -> "Низкая пористость"
+                else -> raw.ifEmpty { "Результат недоступен" }
+            }
+
+        } catch (e: Exception) {
+            println("JSON PARSE ERROR: ${e.message}")
+            raw.ifEmpty { "Результат недоступен" }
+        }
     }
 }
