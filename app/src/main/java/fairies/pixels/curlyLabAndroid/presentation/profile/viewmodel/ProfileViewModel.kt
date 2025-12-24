@@ -6,10 +6,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fairies.pixels.curlyLabAndroid.data.local.AuthDataStore
+import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.HairTypeRequest
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.HairTypeResponse
 import fairies.pixels.curlyLabAndroid.domain.repository.auth.AuthRepository
 import fairies.pixels.curlyLabAndroid.domain.repository.profile.HairTypesRepository
 import fairies.pixels.curlyLabAndroid.domain.repository.profile.UsersRepository
+import fairies.pixels.curlyLabAndroid.presentation.hairTyping.ColoredTypes
+import fairies.pixels.curlyLabAndroid.presentation.hairTyping.PorosityTypes
+import fairies.pixels.curlyLabAndroid.presentation.hairTyping.ThicknessTypes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +32,7 @@ class ProfileViewModel @Inject constructor(
     private val hairTypeRepository: HairTypesRepository,
     private val authRepository: AuthRepository,
     private val authDataStore: AuthDataStore,
+    private val hairTypesRepository: HairTypesRepository,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -58,6 +63,9 @@ class ProfileViewModel @Inject constructor(
 
     private val _userId = MutableStateFlow<String?>(null)
     val userId: StateFlow<String?> = _userId.asStateFlow()
+
+    private val _saved = MutableStateFlow<Boolean?>(null)
+    val saved: StateFlow<Boolean?> = _saved.asStateFlow()
 
     init {
         loadProfileData()
@@ -214,5 +222,46 @@ class ProfileViewModel @Inject constructor(
         }
 
         return file
+    }
+
+    fun saveManualHairType(hairCriteria: String, hairTypeResult: String) {
+        viewModelScope.launch {
+            try {
+                val userId = authDataStore.getUserId()
+                if (userId != null) {
+                    try {
+                        val hairTypeRequest = when (hairCriteria) {
+                            "Пористость" -> {
+                                HairTypeRequest(
+                                    porosity = PorosityTypes.getDbCodeByResultName(hairTypeResult),
+                                    userId = userId
+                                )
+                            }
+
+                            "Толщина" -> {
+                                HairTypeRequest(
+                                    thickness = ThicknessTypes.getDbCodeByResultName(hairTypeResult),
+                                    userId = userId
+                                )
+                            }
+
+                            else -> {
+                                HairTypeRequest(
+                                    isColored = hairTypeResult == ColoredTypes.COLORED.result,
+                                    userId = userId
+                                )
+                            }
+                        }
+                        hairTypesRepository.updateHairType(userId, hairTypeRequest)
+                        _saved.value = true
+                        loadHairType(userId)
+                    } catch (e: Exception) {
+                        _saved.value = false
+                    }
+                }
+            } catch (e: Exception) {
+                _saved.value = false
+            }
+        }
     }
 }

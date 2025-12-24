@@ -43,7 +43,7 @@ fun TagFilterSheet(
     ) {
         FilterGroup(
             title = "Пористость",
-            options = listOf("Сильная", "Средняя", "Низкая"),
+            options = listOf("Высокая", "Средняя", "Низкая"),
             selected = selectedTags["Пористость"],
             onClick = { onTagClick("Пористость", it) }
         )

@@ -17,6 +17,10 @@ enum class PorosityTypes(val code: String, val dbCode: String, val resultName: S
         fun getResultNameByDbCode(dbCode: String): String? {
             return entries.find { it.dbCode == dbCode }?.resultName?.capitalize(Locale.ROOT)
         }
+
+        fun getDbCodeByResultName(resultName: String): String? {
+            return entries.find { it.resultName == resultName }?.dbCode?.capitalize(Locale.ROOT)
+        }
     }
 }
 
@@ -28,6 +32,10 @@ enum class ThicknessTypes(val code: String, val dbCode: String, val resultName: 
     companion object {
         fun getResultNameByDbCode(dbCode: String): String? {
             return entries.find { it.dbCode == dbCode }?.resultName?.capitalize(Locale.ROOT)
+        }
+
+        fun getDbCodeByResultName(resultName: String): String? {
+            return entries.find { it.resultName == resultName }?.dbCode?.capitalize(Locale.ROOT)
         }
     }
 }
