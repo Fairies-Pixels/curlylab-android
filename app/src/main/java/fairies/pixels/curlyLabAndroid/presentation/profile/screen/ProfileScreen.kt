@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import fairies.pixels.curlyLabAndroid.R
+import fairies.pixels.curlyLabAndroid.presentation.hairTyping.ColoredTypes
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.PorosityTypes
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.ThicknessTypes
 import fairies.pixels.curlyLabAndroid.presentation.navigation.Screen
@@ -207,21 +208,28 @@ fun ProfileScreen(
 
                     ) {
                         HairTypeCard(
-                            R.drawable.porosity,
-                            hairType?.porosity?.let { PorosityTypes.getResultNameByDbCode(it) }
-                                ?: "Пористость"
+                            icon = R.drawable.porosity,
+                            initialText = hairType?.porosity?.let { PorosityTypes.getResultNameByDbCode(it) }
+                                ?: "Пористость",
+                            typeValues = listOf(PorosityTypes.NON_POROUS.resultName, PorosityTypes.POROUS.resultName, PorosityTypes.SEMI_POROUS.resultName),
+                            onValueSelected = { viewModel.saveManualHairType("Пористость", it) }
                         )
                         HairTypeCard(
-                            R.drawable.thin,
-                            hairType?.thickness?.let { ThicknessTypes.getResultNameByDbCode(it) }
-                                ?: "Толщина"
+                            icon = R.drawable.thin,
+                            initialText = hairType?.thickness?.let { ThicknessTypes.getResultNameByDbCode(it) }
+                                ?: "Толщина",
+                            typeValues = listOf(ThicknessTypes.THIN.resultName, ThicknessTypes.BOLD.resultName, ThicknessTypes.MEDIUM.resultName),
+                            onValueSelected = { viewModel.saveManualHairType("Толщина", it) }
                         )
                         HairTypeCard(
-                            R.drawable.color, when (hairType?.isColored) {
+                            icon = R.drawable.color,
+                            initialText = when (hairType?.isColored) {
                                 true -> "Окрашенные"
                                 false -> "Неокрашенные"
                                 else -> "Окрашенность"
-                            }
+                            },
+                            typeValues = listOf(ColoredTypes.COLORED.result, ColoredTypes.NOT_COLORED.result),
+                            onValueSelected = { viewModel.saveManualHairType("Окрашенность", it) }
                         )
                     }
                 }
@@ -297,29 +305,65 @@ fun ProfileImagePicker(
 }
 
 @Composable
-private fun HairTypeCard(icon: Int, text: String) {
-    ElevatedCard(
-        colors = CardDefaults.cardColors(containerColor = LightPink),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(5.dp)
+fun HairTypeCard(
+    icon: Int,
+    initialText: String,
+    typeValues: List<String>,
+    onValueSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedText by remember { mutableStateOf(initialText) }
+
+    LaunchedEffect(initialText) {
+        selectedText = initialText
+    }
+
+    Box {
+        ElevatedCard(
+            colors = CardDefaults.cardColors(containerColor = LightPink),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+            modifier = Modifier.clickable { expanded = true }
         ) {
-            AsyncImage(
-                model = icon,
-                contentDescription = "icon",
-                contentScale = ContentScale.Fit,
-            )
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodySmall,
-                color = DarkGreen.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(5.dp)
+            ) {
+                AsyncImage(
+                    model = icon,
+                    contentDescription = "icon",
+                    contentScale = ContentScale.Fit,
+                )
+                Text(
+                    text = selectedText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = DarkGreen.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                    .zIndex(1f)
+                    .background(BrightPink.copy(alpha = 0.95f))
+        ) {
+            typeValues.forEach { value ->
+                DropdownMenuItem(
+                    text = { Text(value) },
+                    onClick = {
+                        selectedText = value
+                        expanded = false
+                        onValueSelected(value)
+                    }
+                )
+            }
         }
     }
 }
+
+
 
 @Composable
 private fun ErrorMessage(message: String) {
