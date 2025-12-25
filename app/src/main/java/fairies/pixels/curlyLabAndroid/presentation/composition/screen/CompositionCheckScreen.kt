@@ -66,6 +66,10 @@ fun CompositionCheckScreen(navController: NavController) {
         imageUri = uri
     }
 
+    val maxLength = 2000
+    val isLimitExceeded = inputText.length > maxLength
+    val canCheck = !isLimitExceeded && inputText.isNotEmpty()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -86,9 +90,6 @@ fun CompositionCheckScreen(navController: NavController) {
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            val maxLength = 2000
-            val isLimitExceeded = inputText.length > maxLength
 
             Column {
                 OutlinedTextField(
@@ -177,11 +178,19 @@ fun CompositionCheckScreen(navController: NavController) {
 
             Button(
                 onClick = { viewModel.analyze(context, imageUri) },
-                colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                enabled = canCheck,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DarkGreen,
+                    disabledContainerColor = DarkGreen.copy(alpha = 0.5f)
+                ),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.weight(1f).height(56.dp)
             ) {
-                Text("Проверить", color = Color.White, fontFamily = Golos)
+                Text(
+                    text = if (isLimitExceeded) "Слишком длинный текст" else "Проверить",
+                    color = if (canCheck) Color.White else Color.White.copy(alpha = 0.7f),
+                    fontFamily = Golos
+                )
             }
         }
     }
