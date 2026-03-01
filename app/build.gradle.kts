@@ -78,6 +78,13 @@ android {
             excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
     }
+    testOptions {
+        unitTests.all {
+            it.jvmArgs(
+                "--add-opens", "java.base/java.lang=ALL-UNNAMED"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -116,6 +123,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -126,12 +135,19 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 }
 
+tasks.withType<Test>().configureEach {
+    extensions.configure<JacocoTaskExtension> {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
+}
+
 jacoco {
     toolVersion = "0.8.14"
 }
 
 tasks.register<JacocoReport>("jacocoTestReport") {
-    dependsOn("testDebugUnitTest", "connectedDebugAndroidTest")
+    dependsOn("testDebugUnitTest")
     reports {
         xml.required.set(true)
         html.required.set(true)
@@ -143,7 +159,18 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         "**/Manifest*.*",
         "**/*Test*.*",
         "android/**/*.*",
-        "**/databinding/*.*"
+        "**/databinding/*.*",
+        "**/presentation/auth/screen/**",
+        "**/presentation/composition/screen/**",
+        "**/presentation/dictionary/screen/**",
+        "**/presentation/guide/screen/**",
+        "**/presentation/hairTyping/screen/**",
+        "**/presentation/home/screen/**",
+        "**/presentation/profile/screen/**",
+        "**/presentation/products/screen/**",
+        "**/presentation/products/components/**",
+        "**/presentation/navigation/**",
+        "**/presentation/theme/**"
     )
     val kotlinClasses = fileTree("$buildDir/tmp/kotlin-classes/debug") {
         exclude(fileFilter)
@@ -156,8 +183,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     executionData.setFrom(fileTree(buildDir) {
         include(
             "jacoco/testDebugUnitTest.exec",
-            "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec",
-            //"outputs/code_coverage/debugAndroidTest/connected/**/*.ec"
+            "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
         )
     })
 }
