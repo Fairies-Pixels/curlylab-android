@@ -12,6 +12,7 @@ import io.mockk.slot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -116,6 +117,23 @@ class ProductsRepositoryImplTest {
             apiService.removeFromFavorites(
                 userId.toString(),
                 productId.toString()
+            )
+        }
+    }
+
+    @Test
+    fun `удаление отзыва вызывает сервис с правильными параметрами`() = runTest {
+        val productId = UUID.randomUUID()
+        val reviewId = UUID.randomUUID()
+
+        coEvery { apiService.deleteReview(any(), any()) } returns Response.success(Unit)
+
+        repository.deleteReview(productId, reviewId)
+
+        coVerify(exactly = 1) {
+            apiService.deleteReview(
+                productId.toString(),
+                reviewId.toString()
             )
         }
     }
