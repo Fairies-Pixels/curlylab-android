@@ -126,6 +126,10 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
 
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("junit:junit:4.13.2")
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -186,4 +190,5 @@ tasks.register<JacocoReport>("jacocoTestReport") {
             "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
         )
     })
+
 }
