@@ -1,6 +1,5 @@
 package fairies.pixels.curlyLabAndroid
 
-import android.content.Context
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,10 +14,6 @@ import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.Ana
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisResult
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.composition.AnalysisIssue
 
-import android.net.Uri
-import io.mockk.*
-import kotlinx.coroutines.test.*
-import org.junit.Assert.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CompositionViewModelTest {
