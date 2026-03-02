@@ -10,7 +10,9 @@ import fairies.pixels.curlyLabAndroid.data.local.AuthDataStore
 import fairies.pixels.curlyLabAndroid.domain.repository.profile.HairTypesRepository
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.analysis.AnalysisRepository
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.PorosityTypes
+import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.HairTypeRequest
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -44,6 +46,7 @@ class HairAnalysisViewModelTest {
         clearMocks(authDataStore, hairRepo, analysisRepo)
     }
 
+    // ================= ANALYZE =================
 
     @Test
     fun `analyze success returns porosity and stops loading`() = runTest {
@@ -77,12 +80,16 @@ class HairAnalysisViewModelTest {
         assertNull(viewModel.result.value)
     }
 
+    // ================= SAVE =================
 
     @Test
     fun `saveResult when user exists saves successfully`() = runTest {
 
         coEvery { authDataStore.getUserId() } returns "user123"
+
+        // устанавливаем результат анализа
         viewModel.apply {
+            // напрямую ставим состояние результата
             val field = this::class.java.getDeclaredField("_result")
             field.isAccessible = true
             (field.get(this) as MutableStateFlow<String?>).value =

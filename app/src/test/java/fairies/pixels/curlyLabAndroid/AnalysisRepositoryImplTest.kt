@@ -36,6 +36,7 @@ class AnalysisRepositoryImplTest {
         Dispatchers.resetMain()
     }
 
+    // ✅ SUCCESS HIGH
     @Test
     fun `analyzePhoto returns HIGH porosity`() = runTest {
 
@@ -58,6 +59,7 @@ class AnalysisRepositoryImplTest {
         assertEquals("Высокая пористость", result)
     }
 
+    // ✅ SUCCESS MEDIUM
     @Test
     fun `analyzePhoto returns MEDIUM porosity`() = runTest {
 
@@ -71,6 +73,7 @@ class AnalysisRepositoryImplTest {
         assertEquals("Средняя пористость", result)
     }
 
+    // ✅ SUCCESS LOW
     @Test
     fun `analyzePhoto returns LOW porosity`() = runTest {
 
@@ -84,6 +87,7 @@ class AnalysisRepositoryImplTest {
         assertEquals("Низкая пористость", result)
     }
 
+    // ❌ NOT SUCCESS RESPONSE
     @Test(expected = Exception::class)
     fun `analyzePhoto throws when response not successful`() = runTest {
 
@@ -95,6 +99,7 @@ class AnalysisRepositoryImplTest {
 
         repository.analyzePhoto(byteArrayOf(1))
     }
+
 
     @Test
     fun `analyzePhoto returns raw when json invalid`() = runTest {
