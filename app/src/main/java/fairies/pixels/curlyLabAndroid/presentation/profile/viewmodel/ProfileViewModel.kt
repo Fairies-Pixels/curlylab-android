@@ -2,6 +2,7 @@ package fairies.pixels.curlyLabAndroid.presentation.profile.viewmodel
 
 import android.app.Application
 import android.net.Uri
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,7 +72,8 @@ class ProfileViewModel @Inject constructor(
         loadProfileData()
     }
 
-    private fun loadProfileData() {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun loadProfileData() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
