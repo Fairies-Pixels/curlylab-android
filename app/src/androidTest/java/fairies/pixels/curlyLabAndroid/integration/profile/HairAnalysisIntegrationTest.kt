@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -121,6 +122,7 @@ class HairAnalysisIntegrationTest {
 
         // Запускаем анализ
         viewModel.analyze("dummy".toByteArray())
+        advanceUntilIdle()
         Assert.assertEquals(mockPorosityResult, viewModel.result.value)
 
         // Сохраняем результат
