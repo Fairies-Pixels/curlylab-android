@@ -58,16 +58,16 @@ jobs:
     
     - name: Create AVD
       run: |
-        echo no | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+        echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
           --force \
-          --name pixel9 \
-          --package "system-images;android-35;google_apis;x86_64" \
-          --device pixel_9
+          --name test \
+          --package "system-images;android-35;google_apis;x86_64"
     
     - name: Start emulator
       run: |
-        $ANDROID_HOME/emulator/emulator -avd pixel9 -no-audio -no-window -gpu swiftshader_indirect &
+        $ANDROID_HOME/emulator/emulator -avd test -no-window -no-audio -gpu swiftshader_indirect -no-snapshot &
         adb wait-for-device
+        adb shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
         adb shell input keyevent 82
     
     - name: Wait for emulator
