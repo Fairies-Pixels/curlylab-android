@@ -10,7 +10,7 @@ on:
       - main
       - 'feature/issue-*'
   schedule:
-    - cron: '45 14 * * *'
+    - cron: '10 15 * * *'
 
 jobs:
   integration-tests:
@@ -31,11 +31,12 @@ jobs:
       run: chmod +x gradlew
     
     - name: Create local.properties
+      run: echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
+    
+    - name: Create debug keystore
       run: |
-        echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
-        echo "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" >> local.properties
-      env:
-        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        keytool -genkey -v -keystore app/debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
+          -dname "CN=Android Debug, O=Android, C=US" -storepass android -keypass android
     
     - name: Run integration tests
       run: ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=fairies.pixels.curlyLabAndroid.integration
