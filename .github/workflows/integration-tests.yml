@@ -14,7 +14,7 @@ on:
 
 jobs:
   integration-tests:
-    runs-on: macos-latest  # Изменено с ubuntu-latest на macos-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
     
@@ -38,16 +38,15 @@ jobs:
         keytool -genkey -v -keystore app/debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
           -dname "CN=Android Debug, O=Android, C=US" -storepass android -keypass android
     
+    - name: Start emulator
+      run: |
+        echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd --force --name pixel9 --package "system-images;android-35;google_apis;x86_64" --device pixel_9
+        $ANDROID_HOME/emulator/emulator -avd pixel9 -no-audio -no-window -gpu swiftshader_indirect &
+        adb wait-for-device
+        adb shell input keyevent 82
+    
     - name: Run integration tests
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 35
-        target: google_apis
-        arch: x86_64
-        profile: pixel_9
-        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -delay-adb
-        disable-animations: true
-        script: ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=fairies.pixels.curlyLabAndroid.integration
+      run: ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=fairies.pixels.curlyLabAndroid.integration
     
     - name: Upload test reports
       uses: actions/upload-artifact@v4
