@@ -1,4 +1,4 @@
-package fairies.pixels.curlyLabAndroid.integration.profile
+package fairies.pixels.curlyLabAndroid.integration.auth
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -12,7 +12,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.gson.Gson
 import fairies.pixels.curlyLabAndroid.data.local.AuthDataStore
 import fairies.pixels.curlyLabAndroid.data.remote.api.ApiService
-import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.LogoutRequest
+import fairies.pixels.curlyLabAndroid.data.remote.model.request.auth.GoogleRequest
+import fairies.pixels.curlyLabAndroid.data.remote.model.response.auth.AuthResponse
 import fairies.pixels.curlyLabAndroid.data.repository.auth.AuthRepositoryImpl
 import fairies.pixels.curlyLabAndroid.domain.repository.auth.AuthRepository
 import kotlinx.coroutines.CoroutineScope
@@ -30,10 +31,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 
 @RunWith(AndroidJUnit4::class)
-class LogoutIntegrationTest {
+class GoogleAuthIntegrationTest {
 
     companion object {
-
         private lateinit var dataStore: DataStore<Preferences>
         private lateinit var encryptedPrefs: SharedPreferences
         private lateinit var context: Context
@@ -42,18 +42,9 @@ class LogoutIntegrationTest {
         @JvmStatic
         fun setupClass() {
             context = ApplicationProvider.getApplicationContext()
-
-            context.filesDir.listFiles()?.forEach {
-                if (it.name.startsWith("datastore/test_logout")) {
-                    it.delete()
-                }
-            }
-
             dataStore = PreferenceDataStoreFactory.create(
                 scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-                produceFile = {
-                    File(context.filesDir, "datastore/test_logout.preferences_pb")
-                }
+                produceFile = { File(context.filesDir, "datastore/test_google_auth.preferences_pb") }
             )
 
             val masterKey = MasterKey.Builder(context)
@@ -62,7 +53,7 @@ class LogoutIntegrationTest {
 
             encryptedPrefs = EncryptedSharedPreferences.create(
                 context,
-                "test_logout_prefs",
+                "test_google_auth_prefs",
                 masterKey,
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
@@ -77,7 +68,6 @@ class LogoutIntegrationTest {
 
     @Before
     fun setup() {
-
         mockWebServer = MockWebServer()
         mockWebServer.start()
 
@@ -94,85 +84,42 @@ class LogoutIntegrationTest {
     @After
     fun teardown() {
         mockWebServer.shutdown()
-
-        runBlocking {
-            authDataStore.clearAuthData()
-        }
+        runBlocking { authDataStore.clearAuthData() }
     }
 
     @Test
-    fun logoutSuccessful_userIsLoggedOutAndDataCleared() = runTest {
+    fun googleAuthorizationNewUser_success_userSavedInDataStore() = runTest {
+        val idToken = "google-id-token"
 
-        val refreshToken = "refresh.token.456"
-
-        authDataStore.saveAuthData(
-            accessToken = "access.token.123",
-            refreshToken = refreshToken,
-            userId = "user-123",
-            email = "test@gmail.com",
-            username = "testuser",
-            isLoggedIn = false
+        val authResponse = AuthResponse(
+            access = "access.token.123",
+            refresh = "refresh.token.456",
+            userId = "user-999",
+            email = "googleuser@gmail.com",
+            username = "googleuser"
         )
 
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(200)
+                .setBody(Gson().toJson(authResponse))
         )
 
-        authRepository.logout()
+        val result = authRepository.loginWithGoogle(idToken)
+        Assert.assertTrue(result.isSuccess)
 
-        val userId = authDataStore.getUserId()
-        val username = authDataStore.getUsername()
-        val isLoggedIn = authDataStore.isLoggedIn.first()
+        // Проверяем DataStore
+        Assert.assertEquals("user-999", authDataStore.getUserId())
+        Assert.assertEquals("googleuser", authDataStore.getUsername())
+        Assert.assertEquals("googleuser@gmail.com", authDataStore.getEmail())
+        Assert.assertTrue(authDataStore.isLoggedIn.first())
 
-        Assert.assertNull(userId)
-        Assert.assertNull(username)
-        Assert.assertFalse(isLoggedIn)
-
+        // Проверка запроса
         val request = mockWebServer.takeRequest()
-
-        Assert.assertEquals("/auth/logout", request.path)
+        Assert.assertEquals("/auth/google", request.path)
         Assert.assertEquals("POST", request.method)
 
-        val requestBody = Gson().fromJson(
-            request.body.readUtf8(),
-            LogoutRequest::class.java
-        )
-
-        Assert.assertEquals(refreshToken, requestBody.refreshToken)
-    }
-
-    @Test
-    fun logoutInvalidatesRefreshToken_userDataCleared() = runTest {
-        val refreshToken = "refresh.token.123"
-        val userId = "user-123"
-
-        authDataStore.saveAuthData(
-            isLoggedIn = true,
-            accessToken = "access.token.123",
-            refreshToken = refreshToken,
-            userId = userId,
-            username = "testuser",
-            email = "test@gmail.com"
-        )
-
-        mockWebServer.enqueue(MockResponse().setResponseCode(200))
-
-        authRepository.logout()
-
-        val storedUserId = authDataStore.getUserId()
-        val storedUsername = authDataStore.getUsername()
-        val isLoggedIn = authDataStore.isLoggedIn.first()
-
-        Assert.assertNull(storedUserId)
-        Assert.assertNull(storedUsername)
-        Assert.assertFalse(isLoggedIn)
-
-        val request = mockWebServer.takeRequest()
-        Assert.assertEquals("/auth/logout", request.path)
-        Assert.assertEquals("POST", request.method)
-
-        val requestBody = Gson().fromJson(request.body.readUtf8(), LogoutRequest::class.java)
-        Assert.assertEquals(refreshToken, requestBody.refreshToken)
+        val requestBody = Gson().fromJson(request.body.readUtf8(), GoogleRequest::class.java)
+        Assert.assertEquals(idToken, requestBody.idToken)
     }
 }
