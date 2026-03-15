@@ -1,5 +1,6 @@
 [versions]
 agp = "8.11.2"
+gson = "2.13.2"
 kotlin = "2.2.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -10,6 +11,7 @@ activityCompose = "1.11.0"
 composeBom = "2025.11.00"
 composeCompiler = "1.5.15"
 materialIcons = "1.7.8"
+mockwebserver = "5.3.2"
 navigationRuntimeAndroid = "2.9.6"
 navigationCompose = "2.9.6"
 hilt = "2.57.2"
@@ -18,6 +20,7 @@ okhttp = "5.3.0"
 playServicesAuth = "21.4.0"
 retrofit = "3.0.0"
 retrofit2KotlinxSerializationConverter = "1.0.0"
+runner = "1.7.0"
 serialization = "1.9.0"
 coil = "2.7.0"
 datastorePreferences = "1.2.0"
@@ -96,6 +99,9 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
 androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-ext-junit" }
+mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockwebserver" }
+androidx-rules = { module = "androidx.test:rules", version.ref = "runner" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
