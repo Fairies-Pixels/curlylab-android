@@ -14,7 +14,7 @@ on:
 
 jobs:
   integration-tests:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     
@@ -31,18 +31,51 @@ jobs:
       run: chmod +x gradlew
     
     - name: Create local.properties
-      run: echo "sdk.dir=/Users/runner/Library/Android/sdk" > local.properties
+      run: echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
     
     - name: Create debug keystore
       run: |
         keytool -genkey -v -keystore app/debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
           -dname "CN=Android Debug, O=Android, C=US" -storepass android -keypass android
     
+    - name: Enable KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+    
+    - name: Install Android SDK components
+      run: |
+        # Принимаем лицензии
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        
+        # Устанавливаем необходимые компоненты
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+          "platforms;android-35" \
+          "system-images;android-35;google_apis;x86_64" \
+          "emulator" \
+          "platform-tools"
+    
+    - name: Create AVD
+      run: |
+        echo no | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+          --force \
+          --name pixel9 \
+          --package "system-images;android-35;google_apis;x86_64" \
+          --device pixel_9
+    
     - name: Start emulator
       run: |
-        echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd --force --name pixel9 --package "system-images;android-35;google_apis;x86_64" --device pixel_9
         $ANDROID_HOME/emulator/emulator -avd pixel9 -no-audio -no-window -gpu swiftshader_indirect &
         adb wait-for-device
+        adb shell input keyevent 82
+    
+    - name: Wait for emulator
+      run: |
+        adb wait-for-device
+        adb shell settings put global window_animation_scale 0
+        adb shell settings put global transition_animation_scale 0
+        adb shell settings put global animator_duration_scale 0
         adb shell input keyevent 82
     
     - name: Run integration tests
