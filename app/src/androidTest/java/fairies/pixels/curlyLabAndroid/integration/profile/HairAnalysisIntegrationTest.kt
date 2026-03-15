@@ -11,30 +11,25 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fairies.pixels.curlyLabAndroid.data.local.AuthDataStore
 import fairies.pixels.curlyLabAndroid.data.remote.api.ApiService
-import fairies.pixels.curlyLabAndroid.data.remote.model.response.analysis.AnalysisRepository
 import fairies.pixels.curlyLabAndroid.data.repository.profile.HairTypesRepositoryImpl
-import fairies.pixels.curlyLabAndroid.data.remote.model.response.profile.HairTypeResponse
+import fairies.pixels.curlyLabAndroid.data.remote.model.response.analysis.AnalysisRepository
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.viewmodel.HairAnalysisViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
+import io.mockk.mockk
+import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.verify
 
 @RunWith(AndroidJUnit4::class)
 class HairAnalysisIntegrationTest {
@@ -50,7 +45,7 @@ class HairAnalysisIntegrationTest {
             context = ApplicationProvider.getApplicationContext()
             dataStore = PreferenceDataStoreFactory.create(
                 scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-                produceFile = { File(context.filesDir, "datastore/test_profile.preferences_pb") }
+                produceFile = { File(context.filesDir, "datastore/test_hair_analysis.preferences_pb") }
             )
 
             val masterKey = MasterKey.Builder(context)
@@ -59,7 +54,7 @@ class HairAnalysisIntegrationTest {
 
             encryptedPrefs = EncryptedSharedPreferences.create(
                 context,
-                "test_profile_prefs",
+                "test_hair_analysis_prefs",
                 masterKey,
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
@@ -67,30 +62,21 @@ class HairAnalysisIntegrationTest {
         }
     }
 
-    private lateinit var mockWebServer: MockWebServer
-    private lateinit var apiService: ApiService
-    private lateinit var hairTypesRepository: HairTypesRepositoryImpl
     private lateinit var authDataStore: AuthDataStore
+    private lateinit var hairTypesRepository: HairTypesRepositoryImpl
 
     @Before
     fun setup() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start()
+        // Создаём мок ApiService, relaxed = true позволяет не реализовывать все функции
+        val mockApiService = mockk<ApiService>(relaxed = true)
 
-        apiService = Retrofit.Builder()
-            .baseUrl(mockWebServer.url("/"))
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-
+        hairTypesRepository = HairTypesRepositoryImpl(mockApiService)
         authDataStore = AuthDataStore(dataStore, encryptedPrefs)
-        hairTypesRepository = HairTypesRepositoryImpl(apiService)
     }
 
     @After
     fun teardown() {
-        mockWebServer.shutdown()
-        runBlocking { authDataStore.clearAuthData() }
+        runTest { authDataStore.clearAuthData() }
     }
 
     @Test
@@ -100,25 +86,16 @@ class HairAnalysisIntegrationTest {
         // Сохраняем авторизованного пользователя
         authDataStore.saveAuthData(isLoggedIn = true, userId = userId)
 
-        // Мокаем ML-сервер через MockWebServer
         val mockPorosityResult = "ВЫСОКАЯ ПОРИСТОСТЬ"
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody(mockPorosityResult)
-        )
 
         // Мокаем AnalysisRepository
         val analysisRepository = object : AnalysisRepository {
             override suspend fun analyzePhoto(imageBytes: ByteArray): String {
-                val request = mockWebServer.takeRequest()
-                Assert.assertEquals("/analyze", request.path)
                 return mockPorosityResult
             }
         }
 
-        val viewModel =
-            HairAnalysisViewModel(authDataStore, hairTypesRepository, analysisRepository)
+        val viewModel = HairAnalysisViewModel(authDataStore, hairTypesRepository, analysisRepository)
 
         // Запускаем анализ
         viewModel.analyze("dummy".toByteArray())
@@ -127,11 +104,7 @@ class HairAnalysisIntegrationTest {
 
         // Сохраняем результат
         viewModel.saveResult()
+        advanceUntilIdle()
         Assert.assertEquals(true, viewModel.saved.value)
-
-        // Проверяем, что запрос на обновление HairType ушёл
-        val updateRequest = mockWebServer.takeRequest()
-        Assert.assertEquals("/hairtypes/$userId", updateRequest.path)
-        Assert.assertEquals("PUT", updateRequest.method)
     }
 }

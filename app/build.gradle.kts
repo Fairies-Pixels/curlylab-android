@@ -138,6 +138,9 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation("io.mockk:mockk-android:1.13.7")
+    testImplementation("io.mockk:mockk:1.13.7")
+
 }
 
 tasks.withType<Test>().configureEach {
