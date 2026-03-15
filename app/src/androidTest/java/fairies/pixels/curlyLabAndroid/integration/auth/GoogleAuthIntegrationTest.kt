@@ -34,48 +34,30 @@ import java.io.File
 class GoogleAuthIntegrationTest {
 
     companion object {
-        private lateinit var sharedDataStore: DataStore<Preferences>
-        private lateinit var sharedEncryptedPrefs: SharedPreferences
-        private lateinit var sharedContext: Context
+        private lateinit var dataStore: DataStore<Preferences>
+        private lateinit var encryptedPrefs: SharedPreferences
+        private lateinit var context: Context
 
         @BeforeClass
         @JvmStatic
         fun setupClass() {
-            sharedContext = ApplicationProvider.getApplicationContext()
-
-            sharedContext.filesDir.listFiles()?.forEach {
-                if (it.name.startsWith("datastore/test_auth")) {
-                    it.delete()
-                }
-            }
-
-            sharedDataStore = PreferenceDataStoreFactory.create(
+            context = ApplicationProvider.getApplicationContext()
+            dataStore = PreferenceDataStoreFactory.create(
                 scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-                produceFile = {
-                    File(sharedContext.filesDir, "datastore/test_auth.preferences_pb")
-                }
+                produceFile = { File(context.filesDir, "datastore/test_google_auth.preferences_pb") }
             )
 
-            val masterKey = MasterKey.Builder(sharedContext)
+            val masterKey = MasterKey.Builder(context)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .build()
 
-            sharedEncryptedPrefs = EncryptedSharedPreferences.create(
-                sharedContext,
-                "test_encrypted_prefs",
+            encryptedPrefs = EncryptedSharedPreferences.create(
+                context,
+                "test_google_auth_prefs",
                 masterKey,
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             )
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun teardownClass() {
-            runBlocking {
-                val authDataStore = AuthDataStore(sharedDataStore, sharedEncryptedPrefs)
-                authDataStore.clearAuthData()
-            }
         }
     }
 
@@ -95,19 +77,14 @@ class GoogleAuthIntegrationTest {
             .build()
             .create(ApiService::class.java)
 
-        authDataStore = AuthDataStore(
-            sharedDataStore,
-            sharedEncryptedPrefs
-        )
+        authDataStore = AuthDataStore(dataStore, encryptedPrefs)
         authRepository = AuthRepositoryImpl(apiService, authDataStore)
     }
 
     @After
     fun teardown() {
         mockWebServer.shutdown()
-        runBlocking {
-            authDataStore.clearAuthData()
-        }
+        runBlocking { authDataStore.clearAuthData() }
     }
 
     @Test
