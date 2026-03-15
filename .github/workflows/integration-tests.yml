@@ -9,81 +9,42 @@ on:
     branches:
       - main
       - 'feature/issue-*'
-  schedule:
-    - cron: '45 14 * * *'
 
 jobs:
   integration-tests:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-    
-    - name: Make gradlew executable
-      run: chmod +x gradlew
-    
-    - name: Create local.properties
-      run: echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
-    
-    - name: Create debug keystore
-      run: |
-        keytool -genkey -v -keystore app/debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
-          -dname "CN=Android Debug, O=Android, C=US" -storepass android -keypass android
-    
-    - name: Enable KVM
-      run: |
-        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-        sudo udevadm control --reload-rules
-        sudo udevadm trigger --name-match=kvm
-    
-    - name: Install Android SDK components
-      run: |
-        # Принимаем лицензии
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-        
-        # Устанавливаем необходимые компоненты
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-          "platforms;android-35" \
-          "system-images;android-35;google_apis;x86_64" \
-          "emulator" \
-          "platform-tools"
-    
-    - name: Create AVD
-      run: |
-        echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
-          --force \
-          --name test \
-          --package "system-images;android-35;google_apis;x86_64"
-    
-    - name: Start emulator
-      run: |
-        $ANDROID_HOME/emulator/emulator -avd test -no-window -no-audio -gpu swiftshader_indirect -no-snapshot &
-        adb wait-for-device
-        adb shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
-        adb shell input keyevent 82
-    
-    - name: Wait for emulator
-      run: |
-        adb wait-for-device
-        adb shell settings put global window_animation_scale 0
-        adb shell settings put global transition_animation_scale 0
-        adb shell settings put global animator_duration_scale 0
-        adb shell input keyevent 82
-    
-    - name: Run integration tests
-      run: ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=fairies.pixels.curlyLabAndroid.integration
-    
-    - name: Upload test reports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: integration-test-reports
-        path: app/build/reports/androidTests/
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
+      - name: Create debug keystore
+        run: |
+          keytool -genkey -v -keystore app/debug.keystore \
+          -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
+          -dname "CN=Android Debug,O=Android,C=US" \
+          -storepass android -keypass android
+
+      - name: Run instrumentation tests
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: ./gradlew connectedAndroidTest
