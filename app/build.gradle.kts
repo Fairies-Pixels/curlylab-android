@@ -75,7 +75,15 @@ android {
     }
     packaging {
         resources {
-            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+            excludes += listOf(
+                "META-INF/versions/9/OSGI-INF/MANIFEST.MF",
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE",
+                "META-INF/NOTICE",
+                "META-INF/DEPENDENCIES",
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1"
+            )
         }
     }
     testOptions {
