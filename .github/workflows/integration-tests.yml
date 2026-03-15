@@ -42,9 +42,14 @@ jobs:
       - name: Run instrumentation tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: 34
           target: google_apis
           arch: x86_64
           profile: pixel
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
-          script: ./gradlew connectedAndroidTest
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            adb kill-server
+            adb start-server
+            adb wait-for-device
+            ./gradlew connectedAndroidTest
