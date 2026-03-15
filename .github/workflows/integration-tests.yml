@@ -9,6 +9,9 @@ on:
     branches:
       - main
       - 'feature/issue-*'
+  schedule:
+      - cron: '20 8 * * *'
+      - cron: '20 14 * * *'
 
 jobs:
   integration-tests:
