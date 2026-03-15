@@ -60,16 +60,10 @@ jobs:
           script: |
             adb kill-server
             adb start-server
+          
             adb wait-for-device
+            sleep 30
           
-            echo "Waiting for Android to fully boot..."
-          
-            bash -c '
-              until [[ "$(adb shell getprop sys.boot_completed | tr -d "\r")" == "1" ]]; do
-                sleep 2
-              done
-            '
-          
-            adb shell input keyevent 82
+            adb shell input keyevent 82 || true
           
             ./gradlew connectedAndroidTest
