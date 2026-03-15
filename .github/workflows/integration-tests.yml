@@ -1,0 +1,38 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/issue-*'
+  pull_request:
+    branches:
+      - main
+      - 'feature/issue-*'
+  schedule:
+    - cron: '45 14 * * *'
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+    
+    - name: Run integration tests
+      run: ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=fairies.pixels.curlyLabAndroid.integration
+    
+    - name: Upload test reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: integration-test-reports
+        path: app/build/reports/androidTests/
