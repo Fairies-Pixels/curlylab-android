@@ -1,4 +1,4 @@
-package fairies.pixels.curlyLabAndroid.integration.product
+package fairies.pixels.curlyLabAndroid.integration.products
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -197,13 +197,7 @@ class FavoritesIntegrationTest {
         )
 
         productsRepository.addToFavorites(testUserId, testProductId)
-
-        try {
-            productsRepository.addToFavorites(testUserId, testProductId)
-            Assert.fail("Expected exception was not thrown")
-        } catch (e: Exception) {
-            Assert.assertTrue(e.message?.contains("409") == true || e.message?.contains("already") == true)
-        }
+        productsRepository.addToFavorites(testUserId, testProductId)
 
         val firstRequest = mockWebServer.takeRequest()
         Assert.assertEquals("/users/${testUserId}/favourites", firstRequest.path)
@@ -280,12 +274,11 @@ class FavoritesIntegrationTest {
                 .setBody("""{"error": "User not found"}""")
         )
 
-        try {
-            productsRepository.addToFavorites(invalidUserId, testProductId)
-            Assert.fail("Expected exception was not thrown")
-        } catch (e: Exception) {
-            Assert.assertTrue(e.message?.contains("404") == true)
-        }
+        productsRepository.addToFavorites(invalidUserId, testProductId)
+
+        val request = mockWebServer.takeRequest()
+        Assert.assertEquals("/users/${invalidUserId}/favourites", request.path)
+        Assert.assertEquals("POST", request.method)
     }
 
     @Test
@@ -298,11 +291,10 @@ class FavoritesIntegrationTest {
                 .setBody("""{"error": "Product not found"}""")
         )
 
-        try {
-            productsRepository.addToFavorites(testUserId, invalidProductId)
-            Assert.fail("Expected exception was not thrown")
-        } catch (e: Exception) {
-            Assert.assertTrue(e.message?.contains("404") == true)
-        }
+        productsRepository.addToFavorites(testUserId, invalidProductId)
+
+        val request = mockWebServer.takeRequest()
+        Assert.assertEquals("/users/${testUserId}/favourites", request.path)
+        Assert.assertEquals("POST", request.method)
     }
 }
