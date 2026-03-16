@@ -80,6 +80,8 @@ android {
                 "META-INF/LICENSE.md",
                 "META-INF/LICENSE",
                 "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/LICENSE-notice.md",   // <- добавляем этот файл
                 "META-INF/DEPENDENCIES",
                 "META-INF/AL2.0",
                 "META-INF/LGPL2.1"
