@@ -81,7 +81,7 @@ android {
                 "META-INF/LICENSE",
                 "META-INF/NOTICE",
                 "META-INF/NOTICE.txt",
-                "META-INF/LICENSE-notice.md",   // <- добавляем этот файл
+                "META-INF/LICENSE-notice.md",
                 "META-INF/DEPENDENCIES",
                 "META-INF/AL2.0",
                 "META-INF/LGPL2.1"
@@ -148,8 +148,6 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    androidTestImplementation("io.mockk:mockk-android:1.13.7")
-    testImplementation("io.mockk:mockk:1.13.7")
 
 }
 
