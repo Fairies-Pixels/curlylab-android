@@ -131,7 +131,10 @@ class HairAnalysisIntegrationTest {
             analysisRepository.analyzePhoto(testImageBytes)
             Assert.fail("Expected exception was not thrown")
         } catch (e: Exception) {
-            Assert.assertTrue(e.message?.contains("500") == true)
+            Assert.assertTrue(
+                e.message?.contains("Internal server error") == true ||
+                        e.message?.contains("Ошибка анализа") == true
+            )
         }
     }
 

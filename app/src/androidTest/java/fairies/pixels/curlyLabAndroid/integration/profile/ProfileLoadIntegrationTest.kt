@@ -33,7 +33,6 @@ import org.junit.runner.RunWith
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
-import fairies.pixels.curlyLabAndroid.data.remote.model.request.profile.UserRequest
 
 @RunWith(AndroidJUnit4::class)
 class ProfileLoadIntegrationTest {
@@ -164,60 +163,4 @@ class ProfileLoadIntegrationTest {
         val hairRequest = mockWebServer.takeRequest()
         Assert.assertEquals("/hairtypes/$userId", hairRequest.path)
     }
-
-//    @Test
-//    fun updateProfile_usernameUpdatedSuccessfully() = runTest {
-//        val userId = "user-123"
-//        authDataStore.saveAuthData(
-//            isLoggedIn = true,
-//            userId = userId
-//        )
-//
-//        val newUsername = "UpdatedUser123"
-//
-//        // 1️⃣ Мокаем ответ для PUT /users/{id}
-//        mockWebServer.enqueue(
-//            MockResponse()
-//                .setResponseCode(200)
-//        )
-//
-//        // 2️⃣ Мокаем ответ для GET /users/{id} после обновления
-//        val updatedUserResponse = """
-//        {
-//            "id": "$userId",
-//            "username": "$newUsername",
-//            "imageUrl": "https://s3.yandex.com/avatars/user-123.jpg"
-//        }
-//    """.trimIndent()
-//
-//        mockWebServer.enqueue(
-//            MockResponse()
-//                .setResponseCode(200)
-//                .setBody(updatedUserResponse)
-//        )
-//
-//        usersRepository.updateUser(
-//            id = userId,
-//            request = UserRequest(username = newUsername)
-//        )
-//
-//        // 4️⃣ Получаем пользователя после обновления
-//        val updatedUser = usersRepository.getUser(userId)
-//
-//        // 5️⃣ Проверяем имя пользователя
-//        Assert.assertEquals(newUsername, updatedUser.username)
-//
-//        // 6️⃣ Проверяем PUT-запрос
-//        val putRequest = mockWebServer.takeRequest()
-//        Assert.assertEquals("/users/$userId", putRequest.path)
-//        Assert.assertEquals("PUT", putRequest.method)
-//
-//        // 7️⃣ Проверяем GET-запрос
-//        val getRequest = mockWebServer.takeRequest()
-//        Assert.assertEquals("/users/$userId", getRequest.path)
-//        Assert.assertEquals("GET", getRequest.method)
-//    }
-
-
-
 }

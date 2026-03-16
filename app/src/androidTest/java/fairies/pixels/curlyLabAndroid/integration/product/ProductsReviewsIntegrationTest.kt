@@ -1,9 +1,9 @@
-package fairies.pixels.curlyLabAndroid.integration.products
+package fairies.pixels.curlyLabAndroid.integration.product
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fairies.pixels.curlyLabAndroid.data.remote.api.ApiService
-import fairies.pixels.curlyLabAndroid.data.repository.products.ProductsRepositoryImpl
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.products.ReviewResponse
+import fairies.pixels.curlyLabAndroid.data.repository.products.ProductsRepositoryImpl
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -46,7 +46,6 @@ class ProductsReviewsIntegrationTest {
     fun getProductReviews_returnsAllReviews() = runTest {
         val productId = UUID.randomUUID()
 
-        // Мокаем сервер с двумя отзывами
         val reviewJson = """
             [
                 {
@@ -74,15 +73,12 @@ class ProductsReviewsIntegrationTest {
                 .setBody(reviewJson)
         )
 
-        // Вызываем метод репозитория
         val reviews: List<ReviewResponse> = productsRepository.getReviews(productId)
 
-        // Проверяем, что пришли два отзыва
         Assert.assertEquals(2, reviews.size)
         Assert.assertEquals("Отличный продукт!", reviews[0].review)
         Assert.assertEquals("Хорошо, но могло быть лучше", reviews[1].review)
 
-        // Проверяем правильный путь запроса
         val request = mockWebServer.takeRequest()
         Assert.assertEquals("/products/$productId/reviews", request.path)
         Assert.assertEquals("GET", request.method)
@@ -92,7 +88,6 @@ class ProductsReviewsIntegrationTest {
     fun getProductReviews_returnsEmptyList() = runTest {
         val productId = UUID.randomUUID()
 
-        // Мокаем сервер с пустым списком
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(200)
@@ -101,7 +96,6 @@ class ProductsReviewsIntegrationTest {
 
         val reviews: List<ReviewResponse> = productsRepository.getReviews(productId)
 
-        // Проверяем, что список пустой
         Assert.assertTrue(reviews.isEmpty())
 
         val request = mockWebServer.takeRequest()
