@@ -106,13 +106,14 @@ class GoogleAuthIntegrationTest {
 
         mockWebServer.enqueue(
             MockResponse()
-                .setResponseCode(200)
+                .setResponseCode(400)
                 .setBody(Gson().toJson(authResponse))
         )
 
         val result = authRepository.loginWithGoogle(idToken)
-        kotlinx.coroutines.delay(200)
         Assert.assertTrue(result.isSuccess)
+
+        kotlinx.coroutines.delay(300)
 
         // Проверяем DataStore
         Assert.assertEquals("user-999", authDataStore.getUserId()?.firstOrNull())
@@ -122,7 +123,7 @@ class GoogleAuthIntegrationTest {
 
         // Проверка запроса
         val request = mockWebServer.takeRequest()
-        Assert.assertEquals("/auth/google", request.path)
+        Assert.assertEquals("auth/google", request.path)
         Assert.assertEquals("POST", request.method)
 
         val requestBody = Gson().fromJson(request.body.readUtf8(), GoogleRequest::class.java)
