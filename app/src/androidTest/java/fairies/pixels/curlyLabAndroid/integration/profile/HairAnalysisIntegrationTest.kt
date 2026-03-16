@@ -14,6 +14,7 @@ import fairies.pixels.curlyLabAndroid.data.remote.api.ApiService
 import fairies.pixels.curlyLabAndroid.data.repository.profile.HairTypesRepositoryImpl
 import fairies.pixels.curlyLabAndroid.data.remote.model.response.analysis.AnalysisRepository
 import fairies.pixels.curlyLabAndroid.presentation.hairTyping.viewmodel.HairAnalysisViewModel
+import io.mockk.Runs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -29,6 +30,7 @@ import java.io.File
 import io.mockk.mockk
 import io.mockk.every
 import io.mockk.coEvery
+import io.mockk.just
 import io.mockk.verify
 
 @RunWith(AndroidJUnit4::class)
@@ -70,13 +72,18 @@ class HairAnalysisIntegrationTest {
         // Создаём мок ApiService, relaxed = true позволяет не реализовывать все функции
         val mockApiService = mockk<ApiService>(relaxed = true)
 
+        coEvery { mockApiService.updateHairType(any(), any()) } just Runs
+        coEvery { mockApiService.analyzeHair(any()) } returns retrofit2.Response.success(null)
+
         hairTypesRepository = HairTypesRepositoryImpl(mockApiService)
         authDataStore = AuthDataStore(dataStore, encryptedPrefs)
     }
 
     @After
     fun teardown() {
-        runTest { authDataStore.clearAuthData() }
+        runTest {
+            runCatching { authDataStore.clearAuthData() } // безопасно, даже если не инициализирован
+        }
     }
 
     @Test

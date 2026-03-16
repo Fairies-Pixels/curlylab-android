@@ -109,9 +109,9 @@ class GoogleAuthIntegrationTest {
         Assert.assertTrue(result.isSuccess)
 
         // Проверяем DataStore
-        Assert.assertEquals("user-999", authDataStore.getUserId())
-        Assert.assertEquals("googleuser", authDataStore.getUsername())
-        Assert.assertEquals("googleuser@gmail.com", authDataStore.getEmail())
+        Assert.assertEquals("user-999", authDataStore.getUserId()?.first())
+        Assert.assertEquals("googleuser", authDataStore.getUsername()?.first())
+        Assert.assertEquals("googleuser@gmail.com", authDataStore.getEmail()?.first())
         Assert.assertTrue(authDataStore.isLoggedIn.first())
 
         // Проверка запроса
