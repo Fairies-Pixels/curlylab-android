@@ -51,7 +51,10 @@ class ProfileLoadIntegrationTest {
             dataStore = PreferenceDataStoreFactory.create(
                 scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
                 produceFile = {
-                    File(context.filesDir, "datastore/test_profile.preferences_pb")
+                    File(
+                        context.filesDir,
+                        "datastore/test_profile_${System.currentTimeMillis()}.preferences_pb"
+                    )
                 }
             )
 

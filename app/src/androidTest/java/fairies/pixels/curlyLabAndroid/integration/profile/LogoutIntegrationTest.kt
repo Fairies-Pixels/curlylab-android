@@ -141,4 +141,38 @@ class LogoutIntegrationTest {
 
         Assert.assertEquals(refreshToken, requestBody.refreshToken)
     }
+
+    @Test
+    fun logoutInvalidatesRefreshToken_userDataCleared() = runTest {
+        val refreshToken = "refresh.token.123"
+        val userId = "user-123"
+
+        authDataStore.saveAuthData(
+            isLoggedIn = true,
+            accessToken = "access.token.123",
+            refreshToken = refreshToken,
+            userId = userId,
+            username = "testuser",
+            email = "test@gmail.com"
+        )
+
+        mockWebServer.enqueue(MockResponse().setResponseCode(200))
+
+        authRepository.logout()
+
+        val storedUserId = authDataStore.getUserId()
+        val storedUsername = authDataStore.getUsername()
+        val isLoggedIn = authDataStore.isLoggedIn.first()
+
+        Assert.assertNull(storedUserId)
+        Assert.assertNull(storedUsername)
+        Assert.assertFalse(isLoggedIn)
+
+        val request = mockWebServer.takeRequest()
+        Assert.assertEquals("/auth/logout", request.path)
+        Assert.assertEquals("POST", request.method)
+
+        val requestBody = Gson().fromJson(request.body.readUtf8(), LogoutRequest::class.java)
+        Assert.assertEquals(refreshToken, requestBody.refreshToken)
+    }
 }

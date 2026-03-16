@@ -75,7 +75,17 @@ android {
     }
     packaging {
         resources {
-            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+            excludes += listOf(
+                "META-INF/versions/9/OSGI-INF/MANIFEST.MF",
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1"
+            )
         }
     }
     testOptions {
@@ -138,6 +148,7 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 }
 
 tasks.withType<Test>().configureEach {
