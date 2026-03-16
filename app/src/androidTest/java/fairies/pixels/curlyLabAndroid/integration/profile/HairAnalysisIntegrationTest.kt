@@ -32,6 +32,9 @@ import io.mockk.every
 import io.mockk.coEvery
 import io.mockk.just
 import io.mockk.verify
+import mockwebserver3.MockWebServer
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 @RunWith(AndroidJUnit4::class)
 class HairAnalysisIntegrationTest {
@@ -74,14 +77,20 @@ class HairAnalysisIntegrationTest {
     private lateinit var authDataStore: AuthDataStore
     private lateinit var hairTypesRepository: HairTypesRepositoryImpl
 
+    private lateinit var mockWebServer: MockWebServer
+    private lateinit var apiService: ApiService
+
     @Before
     fun setup() {
 
-        apiService = mockk(relaxed = true)
+        mockWebServer = MockWebServer()
+        mockWebServer.start()
 
-        coEvery {
-            apiService.updateHairType(any(), any())
-        } returns Unit
+        apiService = Retrofit.Builder()
+            .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
 
         hairTypesRepository = HairTypesRepositoryImpl(apiService)
 

@@ -123,7 +123,7 @@ class GoogleAuthIntegrationTest {
 
         // Проверка запроса
         val request = mockWebServer.takeRequest()
-        Assert.assertEquals("auth/google", request.path)
+        Assert.assertTrue(request.path!!.contains("/auth/google"))
         Assert.assertEquals("POST", request.method)
 
         val requestBody = Gson().fromJson(request.body.readUtf8(), GoogleRequest::class.java)
