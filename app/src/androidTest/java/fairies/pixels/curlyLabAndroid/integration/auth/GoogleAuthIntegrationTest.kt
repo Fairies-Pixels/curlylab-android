@@ -44,7 +44,12 @@ class GoogleAuthIntegrationTest {
             context = ApplicationProvider.getApplicationContext()
             dataStore = PreferenceDataStoreFactory.create(
                 scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-                produceFile = { File(context.filesDir, "datastore/test_google_auth.preferences_pb") }
+                produceFile = {
+                    File(
+                        context.filesDir,
+                        "datastore/test_google_auth_${System.currentTimeMillis()}.preferences_pb"
+                    )
+                }
             )
 
             val masterKey = MasterKey.Builder(context)
@@ -106,12 +111,13 @@ class GoogleAuthIntegrationTest {
         )
 
         val result = authRepository.loginWithGoogle(idToken)
+        kotlinx.coroutines.delay(200)
         Assert.assertTrue(result.isSuccess)
 
         // Проверяем DataStore
-        Assert.assertEquals("user-999", authDataStore.getUserId()?.first())
-        Assert.assertEquals("googleuser", authDataStore.getUsername()?.first())
-        Assert.assertEquals("googleuser@gmail.com", authDataStore.getEmail()?.first())
+        Assert.assertEquals("user-999", authDataStore.getUserId()?.firstOrNull())
+        Assert.assertEquals("googleuser", authDataStore.getUsername()?.firstOrNull())
+        Assert.assertEquals("googleuser@gmail.com", authDataStore.getEmail()?.firstOrNull())
         Assert.assertTrue(authDataStore.isLoggedIn.first())
 
         // Проверка запроса

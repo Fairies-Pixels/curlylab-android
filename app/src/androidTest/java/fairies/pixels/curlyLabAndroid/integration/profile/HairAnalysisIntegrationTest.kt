@@ -41,13 +41,20 @@ class HairAnalysisIntegrationTest {
         private lateinit var encryptedPrefs: SharedPreferences
         private lateinit var context: Context
 
+        private lateinit var apiService: ApiService
+
         @BeforeClass
         @JvmStatic
         fun setupClass() {
             context = ApplicationProvider.getApplicationContext()
             dataStore = PreferenceDataStoreFactory.create(
                 scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-                produceFile = { File(context.filesDir, "datastore/test_hair_analysis.preferences_pb") }
+                produceFile = {
+                    File(
+                        context.filesDir,
+                        "datastore/test_hair_analysis_${System.currentTimeMillis()}.preferences_pb"
+                    )
+                }
             )
 
             val masterKey = MasterKey.Builder(context)
@@ -69,13 +76,15 @@ class HairAnalysisIntegrationTest {
 
     @Before
     fun setup() {
-        // Создаём мок ApiService, relaxed = true позволяет не реализовывать все функции
-        val mockApiService = mockk<ApiService>(relaxed = true)
 
-        coEvery { mockApiService.updateHairType(any(), any()) } just Runs
-        coEvery { mockApiService.analyzeHair(any()) } returns retrofit2.Response.success(null)
+        apiService = mockk(relaxed = true)
 
-        hairTypesRepository = HairTypesRepositoryImpl(mockApiService)
+        coEvery {
+            apiService.updateHairType(any(), any())
+        } returns Unit
+
+        hairTypesRepository = HairTypesRepositoryImpl(apiService)
+
         authDataStore = AuthDataStore(dataStore, encryptedPrefs)
     }
 
