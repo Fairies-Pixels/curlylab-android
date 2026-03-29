@@ -49,6 +49,12 @@ jobs:
           -dname "CN=Android Debug,O=Android,C=US" \
           -storepass android -keypass android
 
+      - name: Clone app repo
+        run: git clone https://github.com/Fairies-Pixels/curlylab.git curlylab
+
+      - name: Bring up app
+        run: source curlylab/docker/startup.sh $JAVA_HOME
+
       - name: Run instrumentation tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
