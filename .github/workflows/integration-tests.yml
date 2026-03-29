@@ -11,7 +11,7 @@ on:
       - 'feature/issue-*'
   schedule:
       - cron: '20 8 * * *'
-      - cron: '50 17 * * *'
+      - cron: '55 17 * * *'
 
 jobs:
   integration-tests:
