@@ -19,7 +19,7 @@ class LoginAndLogoutUiTest : BaseAuthTest<MainActivity>() {
 
     @Test
     fun login_thenLogout_successFlow() {
-        val email = "test_logout@ya.ru"
+        val email = "e2e_test_${System.currentTimeMillis()}@example.com"
         val password = "123456"
         val name = "test_logout_user"
 
