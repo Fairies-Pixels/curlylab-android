@@ -11,7 +11,7 @@ on:
       - 'feature/issue-*'
   schedule:
       - cron: '20 8 * * *'
-      - cron: '20 14 * * *'
+      - cron: '55 17 * * *'
 
 jobs:
   integration-tests:
@@ -69,4 +69,4 @@ jobs:
           
             adb shell input keyevent 82 || true
           
-            ./gradlew connectedAndroidTest
+            ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=fairies.pixels.curlyLabAndroid.integration
