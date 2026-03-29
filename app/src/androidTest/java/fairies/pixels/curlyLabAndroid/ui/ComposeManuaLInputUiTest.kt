@@ -2,6 +2,7 @@ package fairies.pixels.curlyLabAndroid.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fairies.pixels.curlyLabAndroid.MainActivity
 import org.junit.Rule
@@ -9,16 +10,17 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class ComposeManuaLInputUiTest : BaseAuthTest<MainActivity>() {
+class ComposeManualInputUiTest : BaseAuthTest<MainActivity>() {
 
     @get:Rule
     val rule = createAndroidComposeRule<MainActivity>().also {
         composeTestRule = it
     }
 
+    private val TIMEOUT = 5000L
+
     @Test
     fun composition_manualInput_successFlow() {
-
         val email = "t${System.currentTimeMillis()}@ya.ru"
         val password = "123456"
         val name = "test_comp_user"
@@ -28,11 +30,9 @@ class ComposeManuaLInputUiTest : BaseAuthTest<MainActivity>() {
 
         composeTestRule.onNodeWithText("Проверка составов")
             .performClick()
-
         composeTestRule.waitForIdle()
 
         val compositionText = "Aqua, Cetyl Alcohol, Dimethicone, Parfum"
-
         composeTestRule
             .onNode(hasSetTextAction(), useUnmergedTree = true)
             .performTextInput(compositionText)
@@ -43,8 +43,10 @@ class ComposeManuaLInputUiTest : BaseAuthTest<MainActivity>() {
 
         composeTestRule.waitUntil(timeoutMillis = TIMEOUT) {
             composeTestRule
-                .onAllNodes(hasText("Обнаружены проблемы:", substring = true) or
-                        hasText("Всё в порядке!", substring = true))
+                .onAllNodes(
+                    hasText("Обнаружены проблемы:", substring = true) or
+                            hasText("Всё в порядке!", substring = true)
+                )
                 .fetchSemanticsNodes()
                 .isNotEmpty()
         }
@@ -53,6 +55,16 @@ class ComposeManuaLInputUiTest : BaseAuthTest<MainActivity>() {
             hasText("Обнаружены проблемы:", substring = true) or
                     hasText("Всё в порядке!", substring = true)
         ).assertExists()
+
+        Espresso.pressBack()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Profile").performClick()
+        composeTestRule.waitUntil(timeoutMillis = TIMEOUT) {
+            composeTestRule.onAllNodesWithText(name)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+        composeTestRule.onNodeWithText(name).assertIsDisplayed()
 
         deleteUser()
     }

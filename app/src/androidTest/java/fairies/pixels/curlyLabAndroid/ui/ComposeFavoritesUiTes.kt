@@ -2,6 +2,7 @@ package fairies.pixels.curlyLabAndroid.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fairies.pixels.curlyLabAndroid.MainActivity
 import org.junit.Rule
@@ -24,29 +25,23 @@ class ComposeFavoritesUiTest : BaseAuthTest<MainActivity>() {
         val password = "123456"
         val name = "test_fav_user"
 
-        // Регистрация и логин
         registerUser(email, name, password)
         loginUser(email, password)
 
-        // Переходим на экран "База средств"
         composeTestRule.onNodeWithText("База средств").performClick()
         composeTestRule.waitForIdle()
 
-        // Берём все кнопки "Добавить в избранное"
         val favoriteButtons = composeTestRule
             .onAllNodes(hasContentDescription("Добавить в избранное"))
 
-        // Проверка, что есть хотя бы 2 продукта
         val buttonsCount = favoriteButtons.fetchSemanticsNodes().size
         assert(buttonsCount >= 2) {
             "Ожидалось минимум 2 продукта для добавления в избранное, но найдено $buttonsCount"
         }
 
-        // Добавляем первые два продукта в избранное
         favoriteButtons[0].performClick()
         favoriteButtons[1].performClick()
 
-        // Проверяем, что появились "Удалить из избранного"
         val unfavNodes = composeTestRule
             .onAllNodes(hasContentDescription("Удалить из избранного"))
             .fetchSemanticsNodes()
@@ -54,14 +49,12 @@ class ComposeFavoritesUiTest : BaseAuthTest<MainActivity>() {
             "Ожидалось минимум 2 элемента в избранном, но найдено ${unfavNodes.size}"
         }
 
-        // Переходим во вкладку "Избранное"
         composeTestRule.onNodeWithText("Избранное").performClick()
         composeTestRule.waitUntil(timeoutMillis = TIMEOUT) {
             composeTestRule.onAllNodes(hasContentDescription("Удалить из избранного"))
                 .fetchSemanticsNodes().isNotEmpty()
         }
 
-        // Проверяем, что в списке избранного хотя бы 2 элемента
         val favListNodes = composeTestRule
             .onAllNodes(hasContentDescription("Удалить из избранного"))
             .fetchSemanticsNodes()
@@ -69,10 +62,8 @@ class ComposeFavoritesUiTest : BaseAuthTest<MainActivity>() {
             "Ожидалось минимум 2 элемента во вкладке Избранное, но найдено ${favListNodes.size}"
         }
 
-        // Эмуляция пересоздания Activity
         composeTestRule.activityRule.scenario.recreate()
 
-        // Снова проверяем вкладку "Избранное"
         composeTestRule.onNodeWithText("База средств").performClick()
         composeTestRule.onNodeWithText("Избранное").performClick()
         composeTestRule.waitUntil(timeoutMillis = TIMEOUT) {
@@ -87,7 +78,17 @@ class ComposeFavoritesUiTest : BaseAuthTest<MainActivity>() {
             "Избранное не сохранилось после пересоздания Activity, найдено ${finalNodes.size} элементов"
         }
 
-        // Удаляем пользователя после теста
+        Espresso.pressBack()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Profile").performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = fairies.pixels.curlyLabAndroid.ui.TIMEOUT) {
+            composeTestRule.onAllNodesWithText(name).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeTestRule.onNodeWithText(name).assertIsDisplayed()
+
         deleteUser()
     }
 }
