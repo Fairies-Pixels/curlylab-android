@@ -64,6 +64,9 @@ jobs:
       - name: Bring up app
         run: pushd . && cd curlylab/docker && source startup.sh $JAVA_HOME && popd
 
+      - name: Debug ip
+        run: curl localhost:8080/products
+
       - name: Run instrumentation tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
