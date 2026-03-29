@@ -45,13 +45,13 @@ abstract class BaseAuthTest<A : ComponentActivity> {
         composeTestRule.onNodeWithText("Войти").performClick()
 
         composeTestRule.waitUntil(timeoutMillis = TIMEOUT) {
-            composeTestRule.onAllNodesWithText("Профиль").fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithText("Profile").fetchSemanticsNodes().isNotEmpty()
         }
     }
 
     fun deleteUser() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("Профиль").performClick()
+        composeTestRule.onNodeWithText("Profile").performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithContentDescription("More options").performClick()
         composeTestRule.onNodeWithText("Удалить аккаунт").performClick()

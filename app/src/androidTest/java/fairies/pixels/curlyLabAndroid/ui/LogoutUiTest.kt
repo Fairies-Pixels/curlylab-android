@@ -29,7 +29,7 @@ class LoginAndLogoutUiTest : BaseAuthTest<MainActivity>() {
         loginUser(email, password)
 
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("Профиль").performClick()
+        composeTestRule.onNodeWithText("Profile").performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithContentDescription("More options").performClick()
         composeTestRule.onNodeWithText("Выйти").performClick()
