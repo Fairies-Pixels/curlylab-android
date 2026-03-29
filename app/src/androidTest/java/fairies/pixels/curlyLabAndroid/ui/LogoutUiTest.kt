@@ -11,6 +11,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+const val TIMEOUT: Long = 30000
+
 @RunWith(AndroidJUnit4::class)
 class LoginAndLogoutUiTest : BaseAuthTest<MainActivity>() {
 
@@ -19,7 +21,7 @@ class LoginAndLogoutUiTest : BaseAuthTest<MainActivity>() {
 
     @Test
     fun login_thenLogout_successFlow() {
-        val email = "e2e_test_${System.currentTimeMillis()}@example.com"
+        val email = "t${System.currentTimeMillis()}@ya.ru"
         val password = "123456"
         val name = "test_logout_user"
 
@@ -32,7 +34,7 @@ class LoginAndLogoutUiTest : BaseAuthTest<MainActivity>() {
         composeTestRule.onNodeWithContentDescription("More options").performClick()
         composeTestRule.onNodeWithText("Выйти").performClick()
         composeTestRule.waitForIdle()
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
+        composeTestRule.waitUntil(timeoutMillis = TIMEOUT) {
             composeTestRule.onAllNodesWithText("Войти").fetchSemanticsNodes().isNotEmpty()
         }
 

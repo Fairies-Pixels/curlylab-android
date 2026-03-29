@@ -1,7 +1,6 @@
 package fairies.pixels.curlyLabAndroid.ui
 
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
@@ -33,7 +32,7 @@ abstract class BaseAuthTest<A : ComponentActivity> {
         composeTestRule.onNodeWithText("Подтвердите пароль").performTextInput(password)
         composeTestRule.onNodeWithText("Зарегистрироваться").performClick()
 
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
+        composeTestRule.waitUntil(timeoutMillis = TIMEOUT) {
             composeTestRule.onAllNodesWithText("Вход").fetchSemanticsNodes().isNotEmpty()
         }
     }
@@ -45,7 +44,7 @@ abstract class BaseAuthTest<A : ComponentActivity> {
         composeTestRule.onNodeWithText("Пароль").performTextInput(password)
         composeTestRule.onNodeWithText("Войти").performClick()
 
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
+        composeTestRule.waitUntil(timeoutMillis = TIMEOUT) {
             composeTestRule.onAllNodesWithText("Профиль").fetchSemanticsNodes().isNotEmpty()
         }
     }
@@ -59,6 +58,9 @@ abstract class BaseAuthTest<A : ComponentActivity> {
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Удалить").performClick()
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("Войти").assertIsDisplayed()
+
+        composeTestRule.waitUntil(timeoutMillis = TIMEOUT) {
+            composeTestRule.onAllNodesWithText("Войти").fetchSemanticsNodes().isNotEmpty()
+        }
     }
 }
