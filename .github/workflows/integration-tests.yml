@@ -61,9 +61,6 @@ jobs:
       - name: Install docker-compose
         run: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
 
-      - name: Debug ip address
-        run: ip a
-
       - name: Bring up app
         run: pushd . && cd curlylab/docker && source startup.sh $JAVA_HOME && popd
 
@@ -87,4 +84,7 @@ jobs:
           
             adb shell input keyevent 82 || true
           
-            ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=fairies.pixels.curlyLabAndroid.integration
+            ./gradlew connectedAndroidTest
+            
+      - name: Print report HTML
+        run: cat /home/runner/work/curlylab-android/curlylab-android/app/build/reports/androidTests/connected/debug/index.html
