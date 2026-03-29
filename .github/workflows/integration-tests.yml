@@ -87,4 +87,4 @@ jobs:
           
             adb shell input keyevent 82 || true
           
-            ./gradlew connectedAndroidTest
+            ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=fairies.pixels.curlyLabAndroid.integration
