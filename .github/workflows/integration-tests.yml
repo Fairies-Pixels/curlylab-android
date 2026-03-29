@@ -58,10 +58,8 @@ jobs:
       - name: Download model
         run: wget "https://downloader.disk.yandex.ru/disk/6337bed7912d8976f39b5da99278a97950ef576047832d7ee83e6749a316ba64/69c9c541/dJMZ6Bla5hgccBI1MvRwdqlNv7n3kJc6WHu_SlpBww1A-XDM5cGs0XyMANWTzCIIVEPKozJZ2gqLUDz6BgitVw%3D%3D?uid=0&filename=swa_convnext.pt&disposition=attachment&hash=PkZMpu754Bqqpd8WLMQcO3FqF1JyD51bCruwdji0vhBKl94WflRJt77E7KCtS95rq/J6bpmRyOJonT3VoXnDag%3D%3D%3A&limit=0&content_type=application%2Fzip&owner_uid=1011034159&fsize=350413157&hid=408ec0ba32625e264d7af6af7ebf9604&media_type=compressed&tknv=v3" -O curlylab/docker/swa_convnext.pt
 
-      - name: Download docker-compose
-        run: apt install docker-compose
-
       - name: Bring up app
+        uses: docker/setup-buildx-action@v1
         run: pushd . && cd curlylab/docker && source startup.sh $JAVA_HOME && popd
 
       - name: Run instrumentation tests
