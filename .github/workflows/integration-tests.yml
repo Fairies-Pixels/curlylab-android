@@ -89,6 +89,6 @@ jobs:
           
             ./gradlew connectedAndroidTest
             
-      - name: Print report HTML
+      - name: Create report HTML
         if: always()
-        run: cat /home/runner/work/curlylab-android/curlylab-android/app/build/reports/androidTests/connected/debug/index.html
+        run: zip -r report.zip /home/runner/work/curlylab-android/curlylab-android/app/build/reports/androidTests/connected/debug && cat report.zip
