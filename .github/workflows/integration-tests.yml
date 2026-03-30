@@ -68,6 +68,12 @@ jobs:
             adb wait-for-device
             sleep 30
 
+            adb root
+            adb shell svc data enable
+            adb shell svc wifi enable
+            adb shell setprop net.dns1 8.8.8.8
+            adb shell setprop net.dns2 8.8.4.4
+            
             echo "Checking internet connectivity..."
             adb shell 'for i in 1 2 3 4 5; do ping -c 1 8.8.8.8 && break || sleep 2; done'
             
