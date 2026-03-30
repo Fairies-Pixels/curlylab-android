@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: ftp debug
-        run: ftp --help && ftp --version
+        run: ftp --help && ftp --V
 
       - name: Enable KVM
         run: |
@@ -79,4 +79,4 @@ jobs:
             
       - name: Create report HTML
         if: always()
-        run: zip -r report.zip /home/runner/work/curlylab-android/curlylab-android/app/build/reports/androidTests/connected/debug && ftp -sftp.conf curlylab.ru
+        run: zip -r report.zip /home/runner/work/curlylab-android/curlylab-android/app/build/reports/androidTests/connected/debug && ftp -s ftp.conf curlylab.ru
