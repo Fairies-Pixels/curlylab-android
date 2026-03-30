@@ -61,17 +61,11 @@ jobs:
       - name: Install docker-compose
         run: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
 
-      - name: pwd
-        run: pwd
-
       - name: Bring up app
         run: pushd . && cd curlylab/docker && source startup.sh $JAVA_HOME && popd
 
-      - name: Analyze network
-        run: sleep 30 && ss -lt && ss -ltnp
-
-      - name: Debug ip
-        run: curl 127.0.0.1:8080/products && curl 127.0.0.1:8081/products
+      - name: Debug ip via curl
+        run: curl 127.0.0.1:8080/products
 
       - name: Run instrumentation tests
         uses: ReactiveCircus/android-emulator-runner@v2
