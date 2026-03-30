@@ -83,8 +83,8 @@ jobs:
             sleep 30
             
             adb shell ping -c 3 10.0.2.2
-            adb shell curl http://10.0.2.2:8080/products
-            adb shell curl http://10.0.2.2:8081/products
+            adb shell wget http://10.0.2.2:8080/products
+            adb shell wget http://10.0.2.2:8081/products
             
             adb shell input keyevent 82 || true
           
