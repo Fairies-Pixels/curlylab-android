@@ -59,14 +59,20 @@ jobs:
           ram-size: 2048M
           force-avd-creation: true
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot -no-metrics
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot -no-metrics -dns-server 8.8.8.8
           script: |
             adb kill-server
             adb start-server
           
             adb wait-for-device
             sleep 30
-          
+
+            echo "Checking internet connectivity..."
+            adb shell 'for i in 1 2 3 4 5; do ping -c 1 8.8.8.8 && break || sleep 2; done'
+            
+            echo "Checking server availability..."
+            adb shell 'curl -s -o /dev/null -w "%{http_code}" http://curlylab.ru' || echo "Server not reachable"
+            
             adb shell input keyevent 82 || true
           
             ./gradlew connectedAndroidTest
