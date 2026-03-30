@@ -21,12 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download ftp
-        run: wget "https://downloader.disk.yandex.ru/disk/537f04868ab6b4dc57d063f34d34003e2bde8d481a72e03092eab48279ab4c8f/69ca3fee/dJMZ6Bla5hgccBI1MvRwdhh5eIseETSuFY7-Ji9Sr33x3mJ2VGihnZCCkZMjbb2DLzSbOhSAxDF-zZn244cfPw%3D%3D?uid=0&filename=ftp.conf&disposition=attachment&hash=ApFrMmR%2Bm8BiVoR9HwPYYGCtrnz9Z4%2Bgt9RJapcsYibardWtgcgCfB2MdX5uRAvfq/J6bpmRyOJonT3VoXnDag%3D%3D%3A&limit=0&content_type=text%2Fplain&owner_uid=1011034159&fsize=59&hid=902f1aa1cb5e83b68c3134d25035942b&media_type=settings&tknv=v3" -O ftp.conf
-
-      - name: ftp debug
-        run: touch report.zip && ls && ftp -N ftp.conf -u "ftp://curlylab.ru/report.zip" report.zip
-
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm.rules
@@ -77,6 +71,13 @@ jobs:
           
             ./gradlew connectedAndroidTest
             
-      - name: Create report HTML
+      - name: Submit report HTML
         if: always()
-        run: zip -r report.zip /home/runner/work/curlylab-android/curlylab-android/app/build/reports/androidTests/connected/debug && ftp -s ftp.conf curlylab.ru
+        run: zip -r report.zip /home/runner/work/curlylab-android/curlylab-android/app/build/reports/androidTests/connected/debug
+
+      - name: Submit report HTML
+        needs: Create report HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-archive
+          path: report.zip
