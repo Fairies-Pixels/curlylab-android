@@ -65,7 +65,7 @@ jobs:
         run: pushd . && cd curlylab/docker && source startup.sh $JAVA_HOME && popd
 
       - name: curl
-        run: sleep 10 && curl localhost:8080/products
+        run: sleep 10 && curl localhost:8080/products && echo "-----------------" && curl 10.0.2.2:8080/products
 
       - name: Run instrumentation tests
         uses: ReactiveCircus/android-emulator-runner@v2
