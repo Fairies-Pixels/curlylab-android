@@ -84,7 +84,7 @@ jobs:
             
             adb shell input keyevent 82 || true
           
-            ./gradlew connectedAndroidTest -Pandroid.testInsturmentationRunnerArguments.package=faires.pixels.curlLabAndroid.integration
+            ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=fairies.pixels.curlyLabAndroid.integration
             
       - name: Create report HTML
         if: always()
