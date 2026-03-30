@@ -76,6 +76,7 @@ jobs:
         run: zip -r report.zip /home/runner/work/curlylab-android/curlylab-android/app/build/reports/androidTests/connected/debug
 
       - name: Submit report HTML
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: report-archive
