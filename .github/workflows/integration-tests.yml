@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: curl
-        run: curl curlylab.ru/products
+        run: curl localhost:8080/products
 
       - name: Enable KVM
         run: |
