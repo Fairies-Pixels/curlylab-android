@@ -68,7 +68,7 @@ jobs:
         run: sleep 30 && ss -lt
 
       - name: Debug ip
-        run: curl localhost:8080/products
+        run: curl 127.0.0.1:8080/products && curl 127.0.0.1:8081/products
 
       - name: Run instrumentation tests
         uses: ReactiveCircus/android-emulator-runner@v2
