@@ -95,10 +95,6 @@ jobs:
           
             ./gradlew connectedAndroidTest
             
-  integration-tests-report:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
       - name: Print report HTML
+        if: always()
         run: cat /home/runner/work/curlylab-android/curlylab-android/app/build/reports/androidTests/connected/debug/index.html
