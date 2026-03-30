@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: ftp debug
-        run: ftp --help && ftp --V
+        run: ftp --help && ftp --v
 
       - name: Enable KVM
         run: |
