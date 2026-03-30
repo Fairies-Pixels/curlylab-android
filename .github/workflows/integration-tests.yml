@@ -64,9 +64,6 @@ jobs:
       - name: Bring up app
         run: pushd . && cd curlylab/docker && source startup.sh $JAVA_HOME && popd
 
-      - name: curl
-        run: sleep 30 && ss -tln && curl localhost:8080/products && echo "-----------------" && curl 10.0.2.2:8080/products
-
       - name: Run instrumentation tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
@@ -84,10 +81,6 @@ jobs:
           
             adb wait-for-device
             sleep 30
-            
-            adb shell ping -c 3 10.0.2.2
-            adb shell wget http://10.0.2.2:8080/products
-            adb shell wget http://10.0.2.2:8081/products
             
             adb shell input keyevent 82 || true
           
