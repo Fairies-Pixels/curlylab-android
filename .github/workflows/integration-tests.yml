@@ -83,7 +83,7 @@ jobs:
             sleep 30
             
             adb shell ping -c 3 10.0.2.2
-            adb shell wget -q -O - http://10.0.2.2:8080/products 2>&1 || echo "Server not reachable"
+            adb shell curl http://10.0.2.2:8080/products
             
             adb shell input keyevent 82 || true
           
