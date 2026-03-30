@@ -25,7 +25,7 @@ jobs:
         run: wget "https://downloader.disk.yandex.ru/disk/9896c13c2bbde38ed413cd0327d5b6bd7c54aa24a3a0859de48ba5aef2db8d0a/69ca3354/dJMZ6Bla5hgccBI1MvRwdvuqInz9KQPfjbu77S5v6aHDAgLpYhE0DMz4E3JXyZIlc44J3CppMu92-HPyQgtZJw%3D%3D?uid=0&filename=ftp.conf&disposition=attachment&hash=CRi31lU4Z2cAQ51zQvPB91zs4EsoZfMnPlU2R4MpXWpjand/sqqJLWkOEKVSrLL2q/J6bpmRyOJonT3VoXnDag%3D%3D%3A&limit=0&content_type=text%2Fplain&owner_uid=1011034159&fsize=44&hid=19ac924c74fbf3c8c5d0ac81ac625cfb&media_type=settings&tknv=v3" -O ftp.conf
 
       - name: ftp debug
-        run: ftp --help && touch report.zip && ftp -s ftp.conf curlylab.ru
+        run: touch report.zip && ls && ftp -s ftp.conf curlylab.ru
 
       - name: Enable KVM
         run: |
