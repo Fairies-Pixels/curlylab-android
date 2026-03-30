@@ -59,7 +59,7 @@ jobs:
           ram-size: 2048M
           force-avd-creation: true
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot -no-metrics -dns-server 8.8.8.8
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot -no-metrics -netdelay none -netspeed full -dns-server 8.8.8.8
           script: |
             adb kill-server
             adb start-server
