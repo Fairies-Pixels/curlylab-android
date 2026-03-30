@@ -22,10 +22,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download ftp
-        run: wget "https://downloader.disk.yandex.ru/disk/9896c13c2bbde38ed413cd0327d5b6bd7c54aa24a3a0859de48ba5aef2db8d0a/69ca3354/dJMZ6Bla5hgccBI1MvRwdvuqInz9KQPfjbu77S5v6aHDAgLpYhE0DMz4E3JXyZIlc44J3CppMu92-HPyQgtZJw%3D%3D?uid=0&filename=ftp.conf&disposition=attachment&hash=CRi31lU4Z2cAQ51zQvPB91zs4EsoZfMnPlU2R4MpXWpjand/sqqJLWkOEKVSrLL2q/J6bpmRyOJonT3VoXnDag%3D%3D%3A&limit=0&content_type=text%2Fplain&owner_uid=1011034159&fsize=44&hid=19ac924c74fbf3c8c5d0ac81ac625cfb&media_type=settings&tknv=v3" -O ftp.conf
+        run: wget "https://downloader.disk.yandex.ru/disk/537f04868ab6b4dc57d063f34d34003e2bde8d481a72e03092eab48279ab4c8f/69ca3fee/dJMZ6Bla5hgccBI1MvRwdhh5eIseETSuFY7-Ji9Sr33x3mJ2VGihnZCCkZMjbb2DLzSbOhSAxDF-zZn244cfPw%3D%3D?uid=0&filename=ftp.conf&disposition=attachment&hash=ApFrMmR%2Bm8BiVoR9HwPYYGCtrnz9Z4%2Bgt9RJapcsYibardWtgcgCfB2MdX5uRAvfq/J6bpmRyOJonT3VoXnDag%3D%3D%3A&limit=0&content_type=text%2Fplain&owner_uid=1011034159&fsize=59&hid=902f1aa1cb5e83b68c3134d25035942b&media_type=settings&tknv=v3" -O ftp.conf
 
       - name: ftp debug
-        run: touch report.zip && ls && ftp -u "ftp://curlylab.ru/report.zip" report.zip
+        run: touch report.zip && ls && ftp -N ftp.conf -u "ftp://curlylab.ru/report.zip" report.zip
 
       - name: Enable KVM
         run: |
